@@ -1,0 +1,25 @@
+class MaterialCategories {
+  static const List<String> all = [
+    "Cement & Binders",
+    "Sand & Aggregates",
+    "Bricks & Blocks",
+    "Steel & Metals",
+    "Concrete & Ready-Mix",
+    "Wood & Boards",
+    "Doors & Windows",
+    "Flooring Materials",
+    "Plumbing Materials",
+    "Sanitary Ware",
+    "Bathroom Fittings",
+    "Electrical Materials",
+    "Lighting & Fixtures",
+    "Paints & Coatings",
+    "Waterproofing & Chemicals",
+    "Hardware & Fasteners",
+    "Ceiling & Wall Systems",
+    "Glass & Glazing",
+    "Roofing Materials",
+    "External & Landscaping",
+    "Miscellaneous",
+  ];
+}
