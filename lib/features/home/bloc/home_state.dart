@@ -8,6 +8,7 @@ class HomeState extends Equatable {
   final Map<String, dynamic>? projectSummary;
   final String? error;
   final String? userName;
+  final bool isLoggedOut;
 
   const HomeState({
     this.isLoading = false,
@@ -17,6 +18,7 @@ class HomeState extends Equatable {
     this.projectSummary,
     this.error,
     this.userName,
+    this.isLoggedOut = false,
   });
 
   HomeState copyWith({
@@ -27,6 +29,7 @@ class HomeState extends Equatable {
     Map<String, dynamic>? projectSummary,
     String? error,
     String? userName,
+    bool? isLoggedOut,
   }) {
     return HomeState(
       isLoading: isLoading ?? this.isLoading,
@@ -36,6 +39,7 @@ class HomeState extends Equatable {
       projectSummary: projectSummary ?? this.projectSummary,
       error: error,
       userName: userName ?? this.userName,
+      isLoggedOut: isLoggedOut ?? this.isLoggedOut,
     );
   }
 
@@ -48,5 +52,6 @@ class HomeState extends Equatable {
     projectSummary,
     error,
     userName,
+    isLoggedOut,
   ];
 }

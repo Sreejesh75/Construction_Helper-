@@ -28,6 +28,8 @@ class UpdateUserName extends HomeEvent {
   List<Object?> get props => [userId, name];
 }
 
+class LogoutEvent extends HomeEvent {}
+
 /// Create a new project
 class CreateProject extends HomeEvent {
   final String userId;

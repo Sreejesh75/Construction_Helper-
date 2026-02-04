@@ -1,3 +1,4 @@
+import 'package:construction_app/features/auth/presentation/login_screen.dart';
 import 'package:construction_app/features/home/presentation/dashboard_screen.dart';
 import 'package:construction_app/features/home/presentation/widgets/add_project_bottom_sheet.dart';
 import 'package:construction_app/features/home/presentation/widgets/home_header.dart';
@@ -64,8 +65,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody(BuildContext context) {
-    return BlocBuilder<HomeBloc, HomeState>(
-      builder: (context, state) {
+    return BlocListener<HomeBloc, HomeState>(
+      listener: (context, state) {
+        if (state.isLoggedOut) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (route) => false,
+          );
+        }
+      },
+      child: BlocBuilder<HomeBloc, HomeState>(
+        builder: (context, state) {
         if (state.isLoading) {
           return Center(child: CircularProgressIndicator(color: Colors.white));
         }
@@ -278,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         );
       },
-    );
+    ),);
   }
 
   Widget _buildFab(BuildContext context) {

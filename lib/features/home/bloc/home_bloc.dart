@@ -19,6 +19,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<AddMaterial>(_addMaterial);
     on<UpdateMaterial>(_updateMaterial);
     on<DeleteMaterial>(_deleteMaterial);
+    on<LogoutEvent>(_logout);
+  }
+
+  /// Logout
+  Future<void> _logout(LogoutEvent event, Emitter<HomeState> emit) async {
+    try {
+      await authApi.logout();
+      emit(state.copyWith(isLoggedOut: true));
+    } catch (e) {
+      // Even if API fails, we likely want to allow logout on client side
+      // or at least show error. For now, force logout.
+      emit(state.copyWith(isLoggedOut: true));
+    }
   }
 
   // ... existing methods
@@ -112,7 +125,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     emit(
-      state.copyWith(isLoading: true, error: null, userName: event.userName),
+      state.copyWith(
+        isLoading: true,
+        error: null,
+        userName: event.userName,
+        isLoggedOut:
+            false, // Reset logout state when loading projects (i.e. logging in)
+      ),
     );
 
     try {

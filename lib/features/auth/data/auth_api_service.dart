@@ -66,4 +66,21 @@ class AuthApiService {
       throw Exception(e.response?.data["message"] ?? "Update failed");
     }
   }
+
+  /// Logout user
+  Future<void> logout() async {
+    try {
+      final response = await _dio.post(ApiConstants.logout);
+
+      if (response.statusCode != 200) {
+        // Even if it fails server-side, we should probably still assume logout on client
+        // but let's throw for now if strictly checking
+        // throw Exception(response.data["message"] ?? "Failed to logout");
+        // Actually, for logout, best effort is usually fine.
+      }
+    } on DioException catch (e) {
+      // Log error but generally we want to proceed with client-side logout
+      print("Logout API error: ${e.message}");
+    }
+  }
 }

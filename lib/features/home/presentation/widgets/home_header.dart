@@ -108,7 +108,7 @@ class HomeHeader extends StatelessWidget {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        // Navigate to login or perform logout
+                        context.read<HomeBloc>().add(LogoutEvent());
                       },
                       child: const Text(
                         "Logout",
