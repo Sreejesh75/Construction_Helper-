@@ -14,162 +14,80 @@ class CustomAnimatedBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-      child: SizedBox(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 30),
+      child: Container(
+        height: 70,
         width: size.width,
-        height: 70, // Reduced height
-        child: Stack(
-          clipBehavior: Clip.none,
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A).withOpacity(0.85), // Darker glass base
+          borderRadius: BorderRadius.circular(35),
+          border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF3B82F6).withOpacity(0.15), // Blue glow
+              blurRadius: 20,
+              spreadRadius: -5,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            CustomPaint(
-              size: Size(size.width, 70), // Reduced height
-              painter: BNBCustomPainter(currentIndex: currentIndex),
-            ),
-            Center(
-              heightFactor: 0.6,
-              child: SizedBox(
-                height: 70, // Match outer height
-                width: size.width,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildNavItem(0, Icons.home_rounded),
-                    _buildNavItem(1, Icons.add_rounded),
-                    _buildNavItem(2, Icons.person_rounded),
-                  ],
-                ),
-              ),
-            ),
+            // Home Item (Index 0)
+            _buildIconItem(0, Icons.home_rounded),
+
+            // Add Project Item (Index 1) - Now Standard
+            _buildIconItem(1, Icons.add_rounded),
+
+            // Profile Item (Index 2)
+            _buildIconItem(2, Icons.person_rounded),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon) {
+  Widget _buildIconItem(int index, IconData icon) {
     final isSelected = currentIndex == index;
+
+    // Apply Glow to ANY selected item
+    if (isSelected) {
+      return GestureDetector(
+        onTap: () => onTap(index),
+        child: Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              colors: [Color(0xFFF97316), Color(0xFFEA580C)], // Orange gradient
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFF97316).withOpacity(0.6),
+                blurRadius: 20,
+                spreadRadius: 2,
+              ),
+            ],
+            border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+          ),
+          child: Icon(icon, color: Colors.white, size: 28),
+        ),
+      );
+    }
+
     return GestureDetector(
       onTap: () => onTap(index),
       child: Container(
         width: 50,
         height: 50,
+        color: Colors.transparent, // Hit test
         alignment: Alignment.center,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-          width: isSelected ? 40 : 25, // Slightly smaller
-          height: isSelected ? 40 : 25,
-          decoration: isSelected
-              ? BoxDecoration(
-                  color: const Color(0xFFE88A64), // Orange color from image
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFE88A64).withOpacity(0.4),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                )
-              : null,
-          child: Icon(
-            icon,
-            color: isSelected
-                ? Colors.white
-                : Colors.white54, // Adapted for dark bg
-            size: isSelected ? 24 : 22,
-          ),
-        ),
+        child: Icon(icon, color: Colors.white54, size: 26),
       ),
     );
-  }
-}
-
-class BNBCustomPainter extends CustomPainter {
-  final int currentIndex;
-
-  BNBCustomPainter({required this.currentIndex});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()
-      ..color =
-          const Color(0xFF1E293B) // Slate 800 - Dark theme
-      ..style = PaintingStyle.fill;
-
-    Path path = Path();
-
-    // With padding in the parent widget, 'size.width' is already the inner width (capsule width)
-
-    double loc = 0.5;
-    if (currentIndex == 0) loc = 0.17;
-    if (currentIndex == 1) loc = 0.5;
-    if (currentIndex == 2) loc = 0.83;
-
-    double x = size.width * loc;
-
-    // Capsule parameters - reduced radius for smaller height
-    double cornerRadius = 20.0;
-
-    // Start from top-left rounded corner
-    path.moveTo(0, cornerRadius);
-    path.quadraticBezierTo(0, 0, cornerRadius, 0);
-
-    double curveWidth = size.width * 0.20;
-    if (curveWidth > 80) curveWidth = 80;
-
-    // Line to the start of the cutout
-    path.lineTo(x - curveWidth / 2 - 10, 0);
-
-    // Smooth cutout curve
-    path.cubicTo(
-      x - curveWidth / 4,
-      0,
-      x - curveWidth / 4,
-      30, // Reduced Depth from 35 to 30
-      x,
-      30,
-    );
-
-    path.cubicTo(
-      x + curveWidth / 4,
-      30,
-      x + curveWidth / 4,
-      0,
-      x + curveWidth / 2 + 10,
-      0,
-    );
-
-    // Line to top-right corner
-    path.lineTo(size.width - cornerRadius, 0);
-    path.quadraticBezierTo(size.width, 0, size.width, cornerRadius);
-
-    // Right side down
-    path.lineTo(size.width, size.height - cornerRadius);
-    path.quadraticBezierTo(
-      size.width,
-      size.height,
-      size.width - cornerRadius,
-      size.height,
-    );
-
-    // Bottom side
-    path.lineTo(cornerRadius, size.height);
-    path.quadraticBezierTo(0, size.height, 0, size.height - cornerRadius);
-
-    path.close();
-
-    canvas.drawShadow(
-      path,
-      Colors.black.withOpacity(0.3),
-      10,
-      true,
-    ); // Slightly stronger shadow for dark on dark
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
   }
 }

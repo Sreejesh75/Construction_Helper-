@@ -49,8 +49,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [AppColors.primary, AppColors.heading],
-                  stops: const [0.2, 0.9],
+                  colors: [
+                    Color(0xFF172554), // Deep Blue (Blue 950)
+                    Color(0xFF0F172A), // Slate 900
+                    Color(0xFF020617), // Slate 950
+                  ],
+                  stops: const [0.0, 0.6, 1.0],
                 ),
               ),
               child: _buildBody(context),
