@@ -10,289 +10,302 @@ import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final String userId;
   final String userName;
   final bool isNewUser;
+  final bool fromMainScreen;
 
   const HomeScreen({
     super.key,
     required this.userId,
     required this.userName,
     this.isNewUser = false,
+    this.fromMainScreen = false,
   });
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Load projects when the screen initializes
+    context.read<HomeBloc>().add(
+      LoadProjects(widget.userId, userName: widget.userName),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          context.read<HomeBloc>()
-            ..add(LoadProjects(userId, userName: userName)),
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                AppColors.primary,
-                AppColors.heading, // Dark to match bottom section
-              ],
-              stops: const [0.2, 0.9],
+    return widget.fromMainScreen
+        ? _buildBody(context)
+        : Scaffold(
+            extendBodyBehindAppBar: true,
+            body: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [AppColors.primary, AppColors.heading],
+                  stops: const [0.2, 0.9],
+                ),
+              ),
+              child: _buildBody(context),
             ),
-          ),
-          child: BlocBuilder<HomeBloc, HomeState>(
-            builder: (context, state) {
-              if (state.isLoading) {
-                return Center(
-                  child: CircularProgressIndicator(color: Colors.white),
-                );
-              }
+            floatingActionButton: _buildFab(context),
+          );
+  }
 
-              // Calculate Stats
-              double totalBudget = 0;
-              int activeProjectsCount = 0;
-              // final totalProjects = state.projects.length; // Removed
+  Widget _buildBody(BuildContext context) {
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        if (state.isLoading) {
+          return Center(child: CircularProgressIndicator(color: Colors.white));
+        }
 
-              for (var project in state.projects) {
-                totalBudget += (project['budget'] ?? 0).toDouble();
+        // Calculate Stats
+        double totalBudget = 0;
+        int activeProjectsCount = 0;
 
-                // Check active status
-                try {
-                  final endDate = DateTime.parse(project['endDate']);
-                  if (endDate.isAfter(DateTime.now())) {
-                    activeProjectsCount++;
-                  }
-                } catch (_) {}
-              }
+        for (var project in state.projects) {
+          totalBudget += (project['budget'] ?? 0).toDouble();
 
-              return CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Column(
+          // Check active status
+          try {
+            final endDate = DateTime.parse(project['endDate']);
+            if (endDate.isAfter(DateTime.now())) {
+              activeProjectsCount++;
+            }
+          } catch (_) {}
+        }
+
+        return CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  HomeHeader(
+                    userName: state.userName ?? widget.userName,
+                    isNewUser: widget.isNewUser,
+                    userId: widget.userId,
+                    isDarkBackground: true,
+                  ),
+
+                  // My Dashboard & Filter Row
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0,
+                      vertical: 24.0,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        HomeHeader(
-                          userName: state.userName ?? userName,
-                          isNewUser: isNewUser,
-                          userId: userId,
-                          isDarkBackground: true,
+                        const Text(
+                          "My Dashboard",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
-
-                        // My Dashboard & Filter Row
-                        Padding(
+                        Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 20.0,
-                            vertical: 24.0,
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                "My Dashboard",
+                              Text(
+                                "This Month",
                                 style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: Colors.white.withOpacity(0.9),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      "This Month",
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.9),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Icon(
-                                      Icons.keyboard_arrow_down_rounded,
-                                      color: Colors.white.withOpacity(0.9),
-                                      size: 16,
-                                    ),
-                                  ],
-                                ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                color: Colors.white.withOpacity(0.9),
+                                size: 16,
                               ),
                             ],
-                          ),
-                        ),
-
-                        // Stats Card
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                          child: HomeSummaryCard(
-                            totalBudget: totalBudget,
-                            // totalProjects: totalProjects, // Removed
-                            activeProjects: activeProjectsCount,
-                            onActiveProjectsTap: () {
-                              if (state.projects.isNotEmpty) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => DashboardScreen(
-                                      userName: userName,
-                                      projects: state.projects,
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
                           ),
                         ),
                       ],
                     ),
                   ),
 
-                  if (state.projects.isNotEmpty) ...[
-                    SliverPadding(
-                      padding: const EdgeInsets.only(
-                        left: 20,
-                        right: 20,
-                        top: 30, // Adjust spacing
-                        bottom: 10,
-                      ),
-                      sliver: SliverToBoxAdapter(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Recent Projects",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {},
-                              child: const Text(
-                                "View All",
-                                style: TextStyle(
-                                  color: AppColors.primaryLight,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          final project = state.projects[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => DashboardScreen(
-                                      userName: userName,
-                                      projects: state.projects,
-                                      projectId:
-                                          project['_id'], // Pass ID to enable single-project/material mode
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: ProjectCard(
-                                project: project,
-                                onEdit: () => _handleProjectAction(
-                                  context,
-                                  project: project,
-                                ),
-                                onDelete: () =>
-                                    _confirmDelete(context, project['_id']),
+                  // Stats Card
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: HomeSummaryCard(
+                      totalBudget: totalBudget,
+                      // totalProjects: totalProjects, // Removed
+                      activeProjects: activeProjectsCount,
+                      onActiveProjectsTap: () {
+                        if (state.projects.isNotEmpty) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DashboardScreen(
+                                userName: widget.userName,
+                                projects: state.projects,
                               ),
                             ),
                           );
-                        }, childCount: state.projects.length),
-                      ),
+                        }
+                      },
                     ),
-                    const SliverToBoxAdapter(
-                      child: SizedBox(height: 100),
-                    ), // Bottom padding
-                  ] else ...[
-                    // Empty State
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 50),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.folder_open,
-                              size: 80,
-                              color: Colors.grey[300],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              "No projects yet",
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.grey[500],
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Create your first project to get started",
-                              style: TextStyle(color: Colors.grey[400]),
-                            ),
-                          ],
+                  ),
+                ],
+              ),
+            ),
+
+            if (state.projects.isNotEmpty) ...[
+              SliverPadding(
+                padding: const EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  top: 30, // Adjust spacing
+                  bottom: 10,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Recent Projects",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                    ),
-                  ],
-                ],
-              );
-            },
-          ),
-        ),
-        floatingActionButton: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [AppColors.primary, AppColors.primaryLight],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withOpacity(0.4),
-                blurRadius: 15,
-                offset: const Offset(0, 8),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          "View All",
+                          style: TextStyle(
+                            color: AppColors.primaryLight,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final project = state.projects[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DashboardScreen(
+                                userName: widget.userName,
+                                projects: state.projects,
+                                projectId:
+                                    project['_id'], // Pass ID to enable single-project/material mode
+                              ),
+                            ),
+                          );
+                        },
+                        child: ProjectCard(
+                          project: project,
+                          onEdit: () =>
+                              _handleProjectAction(context, project: project),
+                          onDelete: () =>
+                              _confirmDelete(context, project['_id']),
+                        ),
+                      ),
+                    );
+                  }, childCount: state.projects.length),
+                ),
+              ),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 100),
+              ), // Bottom padding
+            ] else ...[
+              // Empty State
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 50),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.folder_open,
+                        size: 80,
+                        color: Colors.grey[300],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "No projects yet",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey[500],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Create your first project to get started",
+                        style: TextStyle(color: Colors.grey[400]),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildFab(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.primary, AppColors.primaryLight],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.4),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           ),
-          child: FloatingActionButton.extended(
-            onPressed: () => _handleProjectAction(context),
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            highlightElevation: 0,
-            icon: const Icon(Icons.add_rounded, color: Colors.white),
-            label: const Text(
-              "New Project",
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-                letterSpacing: 0.5,
-              ),
-            ),
+        ],
+      ),
+      child: FloatingActionButton.extended(
+        onPressed: () => _handleProjectAction(context),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        highlightElevation: 0,
+        icon: const Icon(Icons.add_rounded, color: Colors.white),
+        label: const Text(
+          "New Project",
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+            letterSpacing: 0.5,
           ),
         ),
       ),
@@ -325,7 +338,7 @@ class HomeScreen extends StatelessWidget {
           context.read<HomeBloc>().add(
             UpdateProject(
               projectId: project['_id'],
-              userId: userId,
+              userId: widget.userId,
               projectName: projectName,
               budget: budget,
               startDate: startDate,
@@ -335,7 +348,7 @@ class HomeScreen extends StatelessWidget {
         } else {
           context.read<HomeBloc>().add(
             CreateProject(
-              userId: userId,
+              userId: widget.userId,
               projectName: projectName,
               budget: budget,
               startDate: startDate,
@@ -363,7 +376,7 @@ class HomeScreen extends StatelessWidget {
             onPressed: () {
               Navigator.pop(ctx);
               context.read<HomeBloc>().add(
-                DeleteProject(userId: userId, projectId: projectId),
+                DeleteProject(userId: widget.userId, projectId: projectId),
               );
             },
             child: const Text("Delete", style: TextStyle(color: Colors.red)),

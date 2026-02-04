@@ -3,7 +3,7 @@ import 'package:construction_app/features/auth/bloc/login_bloc.dart';
 import 'package:construction_app/features/auth/bloc/login_event.dart';
 import 'package:construction_app/features/auth/bloc/login_state.dart';
 import 'package:construction_app/features/auth/data/auth_api_service.dart';
-import 'package:construction_app/features/home/presentation/home_screen.dart';
+import 'package:construction_app/features/home/presentation/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -31,7 +31,7 @@ class _LoginView extends StatelessWidget {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomeScreen(
+              builder: (context) => MainScreen(
                 userId: state.userId!,
                 userName: state.userName ?? 'User',
                 isNewUser: state.isNewUser,

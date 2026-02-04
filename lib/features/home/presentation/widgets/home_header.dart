@@ -53,15 +53,16 @@ class HomeHeader extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Welcome back,",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isDarkBackground
-                          ? Colors.white70
-                          : Colors.grey[600],
-                    ),
-                  ),
+                  _buildGreeting(),
+                  // Text(
+                  //   "Welcome back,",
+                  //   style: TextStyle(
+                  //     fontSize: 14,
+                  //     color: isDarkBackground
+                  //         ? Colors.white70
+                  //         : Colors.grey[600],
+                  //   ),
+                  // ),
                   GestureDetector(
                     onTap: () => _showUpdateNameDialog(context),
                     child: Row(
@@ -180,6 +181,26 @@ class HomeHeader extends StatelessWidget {
             child: const Text("Save"),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildGreeting() {
+    final hour = DateTime.now().hour;
+    String greeting;
+    if (hour < 12) {
+      greeting = "Good Morning,";
+    } else if (hour < 17) {
+      greeting = "Good Afternoon,";
+    } else {
+      greeting = "Good Evening,";
+    }
+
+    return Text(
+      greeting,
+      style: TextStyle(
+        fontSize: 16,
+        color: isDarkBackground ? Colors.white70 : Colors.grey[600],
       ),
     );
   }
