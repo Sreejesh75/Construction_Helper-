@@ -44,22 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return widget.fromMainScreen
         ? _buildBody(context)
         : Scaffold(
-            extendBodyBehindAppBar: true,
-            body: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF172554), // Deep Blue (Blue 950)
-                    Color(0xFF0F172A), // Slate 900
-                    Color(0xFF020617), // Slate 950
-                  ],
-                  stops: const [0.0, 0.6, 1.0],
-                ),
-              ),
-              child: _buildBody(context),
-            ),
+            body: SafeArea(child: _buildBody(context)),
             floatingActionButton: _buildFab(context),
           );
   }
@@ -76,233 +61,183 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
-        if (state.isLoading) {
-          return Center(child: CircularProgressIndicator(color: Colors.white));
-        }
+          if (state.isLoading) {
+            return Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            );
+          }
 
-        // Calculate Stats
-        double totalBudget = 0;
-        int activeProjectsCount = 0;
+          // Calculate Stats
+          double totalBudget = 0;
+          int activeProjectsCount = 0;
 
-        for (var project in state.projects) {
-          totalBudget += (project['budget'] ?? 0).toDouble();
+          for (var project in state.projects) {
+            totalBudget += (project['budget'] ?? 0).toDouble();
 
-          // Check active status
-          try {
-            final endDate = DateTime.parse(project['endDate']);
-            if (endDate.isAfter(DateTime.now())) {
-              activeProjectsCount++;
-            }
-          } catch (_) {}
-        }
+            // Check active status
+            try {
+              final endDate = DateTime.parse(project['endDate']);
+              if (endDate.isAfter(DateTime.now())) {
+                activeProjectsCount++;
+              }
+            } catch (_) {}
+          }
 
-        return CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  HomeHeader(
-                    userName: state.userName ?? widget.userName,
-                    isNewUser: widget.isNewUser,
-                    userId: widget.userId,
-                    isDarkBackground: true,
-                  ),
-
-                  // My Dashboard & Filter Row
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0,
-                      vertical: 24.0,
+          return CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    HomeHeader(
+                      userName: state.userName ?? widget.userName,
+                      isNewUser: widget.isNewUser,
+                      userId: widget.userId,
+                      isDarkBackground: false,
                     ),
+   const SizedBox(height: 25),
+                    // Stats Card
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: HomeSummaryCard(
+                        totalBudget: totalBudget,
+                        // totalProjects: totalProjects, // Removed
+                        activeProjects: activeProjectsCount,
+                        onActiveProjectsTap: () {
+                          if (state.projects.isNotEmpty) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => DashboardScreen(
+                                  userName: widget.userName,
+                                  projects: state.projects,
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              if (state.projects.isNotEmpty) ...[
+                SliverPadding(
+                  padding: const EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    top: 30, // Adjust spacing
+                    bottom: 10,
+                  ),
+                  sliver: SliverToBoxAdapter(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          "My Dashboard",
+                          "Recent Projects",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: AppColors.heading,
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            children: [
-                              Text(
-                                "This Month",
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.keyboard_arrow_down_rounded,
-                                color: Colors.white.withOpacity(0.9),
-                                size: 16,
-                              ),
-                            ],
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text(
+                            "View All",
+                            style: TextStyle(
+                              color: AppColors.primaryLight,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
-
-                  // Stats Card
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: HomeSummaryCard(
-                      totalBudget: totalBudget,
-                      // totalProjects: totalProjects, // Removed
-                      activeProjects: activeProjectsCount,
-                      onActiveProjectsTap: () {
-                        if (state.projects.isNotEmpty) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => DashboardScreen(
-                                userName: widget.userName,
-                                projects: state.projects,
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            if (state.projects.isNotEmpty) ...[
-              SliverPadding(
-                padding: const EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 30, // Adjust spacing
-                  bottom: 10,
                 ),
-                sliver: SliverToBoxAdapter(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Recent Projects",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          "View All",
-                          style: TextStyle(
-                            color: AppColors.primaryLight,
-                            fontWeight: FontWeight.w600,
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final project = state.projects[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => DashboardScreen(
+                                  userName: widget.userName,
+                                  projects: state.projects,
+                                  projectId:
+                                      project['_id'], // Pass ID to enable single-project/material mode
+                                ),
+                              ),
+                            );
+                          },
+                          child: ProjectCard(
+                            project: project,
+                            onEdit: () =>
+                                _handleProjectAction(context, project: project),
+                            onDelete: () =>
+                                _confirmDelete(context, project['_id']),
                           ),
                         ),
-                      ),
-                    ],
+                      );
+                    }, childCount: state.projects.length),
                   ),
                 ),
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final project = state.projects[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => DashboardScreen(
-                                userName: widget.userName,
-                                projects: state.projects,
-                                projectId:
-                                    project['_id'], // Pass ID to enable single-project/material mode
-                              ),
-                            ),
-                          );
-                        },
-                        child: ProjectCard(
-                          project: project,
-                          onEdit: () =>
-                              _handleProjectAction(context, project: project),
-                          onDelete: () =>
-                              _confirmDelete(context, project['_id']),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 100),
+                ), // Bottom padding
+              ] else ...[
+                // Empty State
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 50),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.folder_open,
+                          size: 80,
+                          color: Colors.grey[300],
                         ),
-                      ),
-                    );
-                  }, childCount: state.projects.length),
-                ),
-              ),
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 100),
-              ), // Bottom padding
-            ] else ...[
-              // Empty State
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 50),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.folder_open,
-                        size: 80,
-                        color: Colors.grey[300],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "No projects yet",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey[500],
-                          fontWeight: FontWeight.w500,
+                        const SizedBox(height: 16),
+                        Text(
+                          "No projects yet",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Create your first project to get started",
-                        style: TextStyle(color: Colors.grey[400]),
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        Text(
+                          "Create your first project to get started",
+                          style: TextStyle(color: Colors.grey[400]),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ],
-          ],
-        );
-      },
-    ),);
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildFab(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.primaryLight],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.4),
+            color: AppColors.primary.withOpacity(0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),

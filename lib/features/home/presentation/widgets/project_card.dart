@@ -52,14 +52,14 @@ class ProjectCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.08), // Glass background
+            color: Colors.white, // Solid White
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+            border: Border.all(color: Colors.grey.withOpacity(0.1), width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.grey.withOpacity(0.05),
                 blurRadius: 20,
-                offset: const Offset(0, 10),
+                offset: const Offset(0, 5),
               ),
             ],
           ),
@@ -75,7 +75,7 @@ class ProjectCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white, // White text
+                        color: AppColors.heading, // Dark text
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -88,21 +88,19 @@ class ProjectCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: isActive
-                          ? const Color(0xFF3B82F6).withOpacity(0.2)
-                          : Colors.white.withOpacity(0.1),
+                          ? AppColors.primary.withOpacity(0.1)
+                          : Colors.grey.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: isActive
-                            ? const Color(0xFF3B82F6).withOpacity(0.4)
-                            : Colors.white.withOpacity(0.2),
+                            ? AppColors.primary.withOpacity(0.3)
+                            : Colors.grey.withOpacity(0.2),
                       ),
                     ),
                     child: Text(
                       isActive ? "Active" : "Completed",
                       style: TextStyle(
-                        color: isActive
-                            ? const Color(0xFF60A5FA)
-                            : Colors.white70,
+                        color: isActive ? AppColors.primary : Colors.grey,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),
@@ -116,13 +114,13 @@ class ProjectCard extends StatelessWidget {
                   Icon(
                     Icons.calendar_today_outlined,
                     size: 14,
-                    color: Colors.white54, // Lighter grey/white
+                    color: AppColors.subtitle, // Grey icon
                   ),
                   const SizedBox(width: 8),
                   Text(
                     dateRange,
                     style: TextStyle(
-                      color: Colors.white60, // Lighter grey/white
+                      color: AppColors.subtitle, // Grey text
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                     ),
@@ -138,7 +136,7 @@ class ProjectCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF60A5FA), // Light Blue
+                      color: AppColors.primary, // Green
                     ),
                   ),
                   Row(

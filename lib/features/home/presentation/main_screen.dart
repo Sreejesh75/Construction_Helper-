@@ -8,12 +8,14 @@ import 'package:flutter/material.dart';
 class MainScreen extends StatefulWidget {
   final String userId;
   final String userName;
+  final String email;
   final bool isNewUser;
 
   const MainScreen({
     super.key,
     required this.userId,
     required this.userName,
+    required this.email,
     this.isNewUser = false,
   });
 
@@ -41,25 +43,17 @@ class _MainScreenState extends State<MainScreen> {
           });
         },
       ),
-      const ProfileScreen(),
+      ProfileScreen(userName: widget.userName, email: widget.email),
     ];
 
     return Scaffold(
       extendBody: true, // Important for the curve
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF172554), // Deep Blue (Blue 950)
-              Color(0xFF0F172A), // Slate 900
-              Color(0xFF020617), // Slate 950 (Black-ish)
-            ],
-            stops: const [0.0, 0.6, 1.0],
-          ),
+        color: Colors.white, // Solid white background
+        child: SafeArea(
+          bottom: false, // Let content flow behind bottom nav if needed
+          child: pages[_currentIndex],
         ),
-        child: pages[_currentIndex],
       ),
       bottomNavigationBar: CustomAnimatedBottomBar(
         currentIndex: _currentIndex,

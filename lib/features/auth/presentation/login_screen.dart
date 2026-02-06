@@ -34,6 +34,7 @@ class _LoginView extends StatelessWidget {
               builder: (context) => MainScreen(
                 userId: state.userId!,
                 userName: state.userName ?? 'User',
+                email: state.email,
                 isNewUser: state.isNewUser,
               ),
             ),

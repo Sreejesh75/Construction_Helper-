@@ -8,6 +8,7 @@ class HomeState extends Equatable {
   final Map<String, dynamic>? projectSummary;
   final String? error;
   final String? userName;
+  final String? userId; // Added userId
   final bool isLoggedOut;
 
   const HomeState({
@@ -18,6 +19,7 @@ class HomeState extends Equatable {
     this.projectSummary,
     this.error,
     this.userName,
+    this.userId,
     this.isLoggedOut = false,
   });
 
@@ -29,6 +31,7 @@ class HomeState extends Equatable {
     Map<String, dynamic>? projectSummary,
     String? error,
     String? userName,
+    String? userId,
     bool? isLoggedOut,
   }) {
     return HomeState(
@@ -39,6 +42,7 @@ class HomeState extends Equatable {
       projectSummary: projectSummary ?? this.projectSummary,
       error: error,
       userName: userName ?? this.userName,
+      userId: userId ?? this.userId,
       isLoggedOut: isLoggedOut ?? this.isLoggedOut,
     );
   }
@@ -52,6 +56,7 @@ class HomeState extends Equatable {
     projectSummary,
     error,
     userName,
+    userId,
     isLoggedOut,
   ];
 }

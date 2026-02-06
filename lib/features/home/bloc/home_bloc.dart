@@ -26,11 +26,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Future<void> _logout(LogoutEvent event, Emitter<HomeState> emit) async {
     try {
       await authApi.logout();
-      emit(state.copyWith(isLoggedOut: true));
+      emit(const HomeState(isLoggedOut: true));
     } catch (e) {
-      // Even if API fails, we likely want to allow logout on client side
-      // or at least show error. For now, force logout.
-      emit(state.copyWith(isLoggedOut: true));
+      emit(const HomeState(isLoggedOut: true));
     }
   }
 
@@ -124,13 +122,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     LoadProjects event,
     Emitter<HomeState> emit,
   ) async {
+    // Only update userName if it's a new user login or we don't have one yet
+    final shouldUpdateName =
+        state.userId != event.userId || state.userName == null;
+    final currentUserName = shouldUpdateName ? event.userName : state.userName;
+
     emit(
       state.copyWith(
         isLoading: true,
         error: null,
-        userName: event.userName,
-        isLoggedOut:
-            false, // Reset logout state when loading projects (i.e. logging in)
+        userName: currentUserName,
+        userId: event.userId,
+        isLoggedOut: false,
       ),
     );
 

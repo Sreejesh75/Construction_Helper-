@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Brand
-  static const Color primary = Color(0xFF2563EB); // Royal Blue
-  static const Color primaryLight = Color(0xFF60A5FA); // Lighter Blue
+  static const Color primary = Color(0xFF168E6A); // Green
+  static const Color primaryLight = Color(0xFF4DB6AC); // Lighter Teal/Green
+  static const Color secondary = Color(0xFFFBB03B); // Orange
 
   // Background
-  static const Color gradientTop = Color(0xFF3B82F6);
-  static const Color gradientBottom = Color(0xFF1D4ED8);
+  static const Color gradientTop = Color(0xFF168E6A); // Green
+  static const Color gradientBottom = Color(0xFF0D281F); // Deep Forest Green
 
   // Card
-  static const Color cardBackground = Color(0xFFF8FAFC); // Slate 50
+  static const Color cardBackground = Colors.white;
 
   // Text
-  static const Color heading = Color(0xFF0F172A); // Slate 900
-  static const Color subtitle = Color(0xFF64748B); // Slate 500
+  static const Color heading = Color(0xFF0D281F); // Deep Forest Green
+  static const Color subtitle = Color(0xFFB4B6B7); // Grey
 }

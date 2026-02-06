@@ -29,7 +29,7 @@ class ConstructionApp extends StatelessWidget {
         title: 'Construction App',
 
         theme: ThemeData(
-          scaffoldBackgroundColor: Colors.transparent,
+          scaffoldBackgroundColor: Colors.white,
 
           primaryColor: AppColors.primary,
 

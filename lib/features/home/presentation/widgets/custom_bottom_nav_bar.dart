@@ -19,7 +19,7 @@ class CustomAnimatedBottomBar extends StatelessWidget {
         height: 70,
         width: size.width,
         decoration: BoxDecoration(
-          color: const Color(0xFF0F172A).withOpacity(0.85), // Darker glass base
+          color: Color(0xFF4DB6AC), // Darker glass base
           borderRadius: BorderRadius.circular(35),
           border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
           boxShadow: [
