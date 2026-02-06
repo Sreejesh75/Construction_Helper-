@@ -27,4 +27,8 @@ class ApiConstants {
   static const String uploadDocument = "/api/upload-document";
   static const String getDocuments = "/api/documents";
   static const String deleteDocument = "/api/delete-document";
+
+  // Construction Progress APIs
+  static const String addProgress = "/api/progress/add";
+  static const String getProgress = "/api/progress";
 }

@@ -30,6 +30,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
     try {
       // ✅ REAL API CALL
+      print("LoginBloc: dispatching login request for ${state.email}");
       final result = await _authApiService.loginWithEmail(
         name: state.email.split('@').first,
         email: state.email,

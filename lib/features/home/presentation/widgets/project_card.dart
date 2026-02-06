@@ -1,4 +1,5 @@
 import '../../../documents/presentation/project_documents_screen.dart';
+import '../../../construction_progress/presentation/screens/construction_progress_screen.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -149,6 +150,21 @@ class ProjectCard extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ProjectDocumentsScreen(
+                                projectId: project['_id'] ?? '',
+                                projectName: projectName,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 12),
+                      _ActionButton(
+                        icon: Icons.timelapse_rounded,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ConstructionProgressScreen(
                                 projectId: project['_id'] ?? '',
                                 projectName: projectName,
                               ),

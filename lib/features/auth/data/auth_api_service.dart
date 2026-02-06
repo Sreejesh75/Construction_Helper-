@@ -10,11 +10,15 @@ class AuthApiService {
     required String name,
     required String email,
   }) async {
+    print(
+      "AuthApiService: Attempting login for $email at ${ApiConstants.baseUrl}${ApiConstants.createUser}",
+    );
     try {
       final response = await _dio.post(
         ApiConstants.createUser,
         data: {"name": name, "email": email},
       );
+      print("AuthApiService: Response received: ${response.statusCode}");
 
       if (response.data["status"] == true) {
         final isNew =
@@ -29,6 +33,7 @@ class AuthApiService {
         throw Exception(response.data["message"]);
       }
     } on DioException catch (e) {
+      print("AuthApiService: DioException caught: ${e.type} - ${e.message}");
       String errorMessage = "Login failed";
 
       if (e.type == DioExceptionType.connectionTimeout ||
@@ -37,6 +42,7 @@ class AuthApiService {
       } else if (e.type == DioExceptionType.connectionError) {
         errorMessage = "Unable to connect to server. Check your connection.";
       } else if (e.response != null) {
+        print("AuthApiService: Server Error Data: ${e.response?.data}");
         errorMessage =
             e.response?.data["message"] ??
             "Server error: ${e.response?.statusCode}";
@@ -45,6 +51,9 @@ class AuthApiService {
       }
 
       throw Exception(errorMessage);
+    } catch (e) {
+      print("AuthApiService: Unexpected error: $e");
+      rethrow;
     }
   }
 
