@@ -5,7 +5,7 @@ import '../../../core/theme/app_color.dart';
 class AddProjectBottomSheet extends StatefulWidget {
   final Map<String, dynamic>? project;
 
-  const AddProjectBottomSheet({super.key, this.project});
+  const AddProjectBottomSheet({super.key, this.project, required bool isFullScreen, required Null Function() onSuccess});
 
   @override
   State<AddProjectBottomSheet> createState() => _AddProjectBottomSheetState();

@@ -4,8 +4,13 @@ import '../../../../core/theme/app_color.dart';
 
 class AddProjectBottomSheet extends StatefulWidget {
   final Map<String, dynamic>? project;
+  final bool isFullScreen;
 
-  const AddProjectBottomSheet({super.key, this.project});
+  const AddProjectBottomSheet({
+    super.key,
+    this.project,
+    this.isFullScreen = false,
+  });
 
   @override
   State<AddProjectBottomSheet> createState() => _AddProjectBottomSheetState();
@@ -93,124 +98,169 @@ class _AddProjectBottomSheetState extends State<AddProjectBottomSheet> {
           bottom: MediaQuery.of(context).viewInsets.bottom + 24,
         ),
         decoration: const BoxDecoration(
-          color: Colors.white,
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppColors.primary, AppColors.gradientTop],
+          ),
           borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            Center(
+            // White Bubble Decoration
+            Positioned(
+              top: -100,
+              right: -50,
               child: Container(
-                width: 40,
-                height: 4,
+                width: 200,
+                height: 200,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.1),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  isEditing ? "Edit Project" : "New Project",
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.grey[100],
-                    ),
-                    child: const Icon(
-                      Icons.close,
-                      size: 20,
-                      color: Colors.grey,
+                if (!widget.isFullScreen)
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
+                SizedBox(height: widget.isFullScreen ? 10 : 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      isEditing ? "Edit Project" : "New Project",
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    if (!widget.isFullScreen)
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withOpacity(0.2),
+                          ),
+                          child: const Icon(
+                            Icons.close,
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            _buildTextField(
-              controller: _nameController,
-              label: "Project Name",
-              icon: Icons.work_outline,
-            ),
-            const SizedBox(height: 16),
-            _buildTextField(
-              controller: _budgetController,
-              label: "Budget",
-              icon: Icons.attach_money,
-              inputType: TextInputType.number,
-              prefixText: "₹ ",
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildDatePicker(
-                    label: "Start Date",
-                    date: _startDate,
-                    onTap: () => _pickDate(isStart: true),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildDatePicker(
-                    label: "End Date",
-                    date: _endDate,
-                    onTap: () => _pickDate(isStart: false),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-            Container(
-              width: double.infinity,
-              height: 56,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.primaryLight],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.4),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: ElevatedButton(
-                onPressed: _saveProject,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: Text(
-                  isEditing ? "Update Project" : "Create Project",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                const SizedBox(height: 24),
+
+                // White Content Card
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
                     color: Colors.white,
-                    letterSpacing: 0.5,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      _buildTextField(
+                        controller: _nameController,
+                        label: "Project Name",
+                        icon: Icons.work_outline,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        controller: _budgetController,
+                        label: "Budget",
+                        icon: Icons.attach_money,
+                        inputType: TextInputType.number,
+                        prefixText: "₹ ",
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildDatePicker(
+                              label: "Start Date",
+                              date: _startDate,
+                              onTap: () => _pickDate(isStart: true),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _buildDatePicker(
+                              label: "End Date",
+                              date: _endDate,
+                              onTap: () => _pickDate(isStart: false),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
+                      Container(
+                        width: double.infinity,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [AppColors.primary, AppColors.primaryLight],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withOpacity(0.4),
+                              blurRadius: 15,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: _saveProject,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: Text(
+                            isEditing ? "Update Project" : "Create Project",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
+              ],
             ),
           ],
         ),

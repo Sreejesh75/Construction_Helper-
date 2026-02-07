@@ -1,3 +1,4 @@
+import 'package:construction_app/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
 
 class CustomAnimatedBottomBar extends StatelessWidget {
@@ -60,21 +61,16 @@ class CustomAnimatedBottomBar extends StatelessWidget {
           height: 50,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              colors: [Color(0xFFF97316), Color(0xFFEA580C)], // Orange gradient
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFF97316).withOpacity(0.6),
-                blurRadius: 20,
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
                 spreadRadius: 2,
               ),
             ],
-            border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
           ),
-          child: Icon(icon, color: Colors.white, size: 28),
+          child: Icon(icon, color: AppColors.primary, size: 28),
         ),
       );
     }

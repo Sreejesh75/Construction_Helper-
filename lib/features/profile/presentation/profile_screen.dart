@@ -37,37 +37,61 @@ class ProfileScreen extends StatelessWidget {
             : userName;
 
         return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
+          backgroundColor: Colors.transparent, // Background handled by stack
+          body: Stack(
+            children: [
+              // Green Gradient Background
+              Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [AppColors.primary, AppColors.gradientTop],
+                  ),
+                ),
+              ),
+
+              // White Bubble Decoration
+              Positioned(
+                top: -100,
+                right: -50,
+                child: Container(
+                  width: 300,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.1),
+                  ),
+                ),
+              ),
+
+              // Content
+              Column(
                 children: [
-                  const SizedBox(height: 20),
+                  SizedBox(height: MediaQuery.of(context).padding.top + 20),
                   // Profile Header
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.primary, width: 3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.2),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.5),
+                          width: 2,
                         ),
-                      ],
-                    ),
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.white,
-                      child: Text(
-                        currentUserName.isNotEmpty
-                            ? currentUserName[0].toUpperCase()
-                            : "U",
-                        style: const TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                      ),
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.white,
+                        child: Text(
+                          currentUserName.isNotEmpty
+                              ? currentUserName[0].toUpperCase()
+                              : "U",
+                          style: const TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
                         ),
                       ),
                     ),
@@ -78,56 +102,79 @@ class ProfileScreen extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.heading,
+                      color: Colors.white,
                     ),
                   ),
+                  const SizedBox(height: 4),
                   Text(
                     email,
                     style: const TextStyle(
                       fontSize: 14,
-                      color: Colors.grey,
+                      color: Colors.white70,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 40),
 
-                  // Menu Items
-                  _buildProfileOption(
-                    context,
-                    icon: Icons.settings_rounded,
-                    title: "Settings",
-                    onTap: () {},
-                  ),
-                  _buildProfileOption(
-                    context,
-                    icon: Icons.notifications_rounded,
-                    title: "Notifications",
-                    onTap: () {},
-                  ),
-                  _buildProfileOption(
-                    context,
-                    icon: Icons.smart_toy_rounded,
-                    title: "Help & Support",
-                    subtitle: "Chat with our virtual assistant",
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const ChatScreen()),
-                      );
-                    },
-                  ),
-                  _buildProfileOption(
-                    context,
-                    icon: Icons.logout_rounded,
-                    title: "Logout",
-                    isDestructive: true,
-                    onTap: () {
-                      _showLogoutDialog(context);
-                    },
+                  // White Menu Container
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(30),
+                        ),
+                      ),
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          children: [
+                            // Menu Items
+                            _buildProfileOption(
+                              context,
+                              icon: Icons.settings_rounded,
+                              title: "Settings",
+                              onTap: () {},
+                            ),
+                            _buildProfileOption(
+                              context,
+                              icon: Icons.notifications_rounded,
+                              title: "Notifications",
+                              onTap: () {},
+                            ),
+                            _buildProfileOption(
+                              context,
+                              icon: Icons.smart_toy_rounded,
+                              title: "Help & Support",
+                              subtitle: "Chat with our virtual assistant",
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const ChatScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                            _buildProfileOption(
+                              context,
+                              icon: Icons.logout_rounded,
+                              title: "Logout",
+                              isDestructive: true,
+                              onTap: () {
+                                _showLogoutDialog(context);
+                              },
+                            ),
+                            const SizedBox(height: 80), // Bottom padding
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
+            ],
           ),
         );
       },
@@ -145,15 +192,9 @@ class ProfileScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.grey[50], // Light grey background for contrast on white
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: Colors.grey[100]!), // Subtle border
       ),
       child: ListTile(
         onTap: onTap,

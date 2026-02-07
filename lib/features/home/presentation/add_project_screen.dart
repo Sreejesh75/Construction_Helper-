@@ -79,15 +79,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<HomeBloc, HomeState>(
       listener: (context, state) {
-        if (!state.isLoading && state.error == null) {
-          // Assuming success if not loading and no error after a probable action
-          // Ideally we check if we just submitted
-          // For now, we'll rely on the parent or manual form clearing if needed
-          // But actually, we want to clear form on success
-          // Ideally BLoC would emit a specific effect.
-          // We can check if previous project count < current project count, but that's state diffing.
-          // We'll just manually clear after adding for now.
-        }
         if (state.error != null) {
           ScaffoldMessenger.of(
             context,
@@ -95,112 +86,148 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
         }
       },
       builder: (context, state) {
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 40), // Top spacing
-              const Text(
-                "New Project",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "Create a new construction project to track",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white.withOpacity(0.7),
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Form Container
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
+        return Stack(
+          children: [
+            // Green Gradient Background
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.primary,
+                    AppColors.gradientTop,
+                    Color(0xFFF7F8FA),
                   ],
+                  stops: [0.0, 0.7, 1.0],
                 ),
-                child: Column(
-                  children: [
-                    _buildTextField(
-                      controller: _nameController,
-                      label: "Project Name",
-                      icon: Icons.work_outline,
+              ),
+            ),
+
+            // White Bubble Decoration
+            Positioned(
+              top: -100,
+              right: -50,
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.1),
+                ),
+              ),
+            ),
+
+            // Main Content
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 40), // Top spacing
+                  const Text(
+                    "New Project",
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    const SizedBox(height: 20),
-                    _buildTextField(
-                      controller: _budgetController,
-                      label: "Budget",
-                      icon: Icons.attach_money,
-                      inputType: TextInputType.number,
-                      prefixText: "₹ ",
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Create a new construction project to track",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white.withOpacity(0.7),
                     ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildDatePicker(
-                            label: "Start Date",
-                            date: _startDate,
-                            onTap: () => _pickDate(isStart: true),
-                          ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Form Container
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _buildDatePicker(
-                            label: "End Date",
-                            date: _endDate,
-                            onTap: () => _pickDate(isStart: false),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        _buildTextField(
+                          controller: _nameController,
+                          label: "Project Name",
+                          icon: Icons.work_outline,
+                        ),
+                        const SizedBox(height: 20),
+                        _buildTextField(
+                          controller: _budgetController,
+                          label: "Budget",
+                          icon: Icons.attach_money,
+                          inputType: TextInputType.number,
+                          prefixText: "₹ ",
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildDatePicker(
+                                label: "Start Date",
+                                date: _startDate,
+                                onTap: () => _pickDate(isStart: true),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: _buildDatePicker(
+                                label: "End Date",
+                                date: _endDate,
+                                onTap: () => _pickDate(isStart: false),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: state.isLoading ? null : _saveProject,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              elevation: 2,
+                            ),
+                            child: state.isLoading
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                : const Text(
+                                    "Create Project",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: state.isLoading ? null : _saveProject,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 2,
-                        ),
-                        child: state.isLoading
-                            ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                            : const Text(
-                                "Create Project",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 80), // Bottom spacing for nav bar
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );

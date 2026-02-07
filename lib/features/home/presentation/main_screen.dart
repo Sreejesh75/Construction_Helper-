@@ -1,4 +1,3 @@
-import 'package:construction_app/core/theme/app_color.dart';
 import 'package:construction_app/features/home/presentation/add_project_screen.dart';
 import 'package:construction_app/features/home/presentation/home_screen.dart';
 import 'package:construction_app/features/home/presentation/widgets/custom_bottom_nav_bar.dart';
