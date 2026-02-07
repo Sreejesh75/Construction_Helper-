@@ -1,10 +1,10 @@
-import 'package:construction_app/features/auth/presentation/login_screen.dart';
 import 'package:construction_app/features/home/presentation/dashboard_screen.dart';
 import 'package:construction_app/features/home/presentation/widgets/add_project_bottom_sheet.dart';
 import 'package:construction_app/features/home/presentation/widgets/home_header.dart';
 import 'package:construction_app/features/home/presentation/widgets/home_summary_card.dart';
 import 'package:construction_app/features/home/presentation/widgets/project_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_color.dart';
 import '../bloc/home_bloc.dart';
@@ -44,189 +44,212 @@ class _HomeScreenState extends State<HomeScreen> {
     return widget.fromMainScreen
         ? _buildBody(context)
         : Scaffold(
+            backgroundColor: const Color(0xFFF7F8FA),
             body: SafeArea(child: _buildBody(context)),
             floatingActionButton: _buildFab(context),
           );
   }
 
   Widget _buildBody(BuildContext context) {
-    return BlocListener<HomeBloc, HomeState>(
-      listener: (context, state) {
-        if (state.isLoggedOut) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
-            (route) => false,
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        if (state.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
           );
         }
-      },
-      child: BlocBuilder<HomeBloc, HomeState>(
-        builder: (context, state) {
-          if (state.isLoading) {
-            return Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            );
-          }
 
-          // Calculate Stats
-          double totalBudget = 0;
-          int activeProjectsCount = 0;
+        // Calculate Stats
+        double totalBudget = 0;
+        int activeProjectsCount = 0;
 
-          for (var project in state.projects) {
-            totalBudget += (project['budget'] ?? 0).toDouble();
+        for (var project in state.projects) {
+          totalBudget += (project['budget'] ?? 0).toDouble();
 
-            // Check active status
-            try {
-              final endDate = DateTime.parse(project['endDate']);
-              if (endDate.isAfter(DateTime.now())) {
-                activeProjectsCount++;
-              }
-            } catch (_) {}
-          }
+          // Check active status
+          try {
+            final endDate = DateTime.parse(project['endDate']);
+            if (endDate.isAfter(DateTime.now())) {
+              activeProjectsCount++;
+            }
+          } catch (_) {}
+        }
 
-          return CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    HomeHeader(
-                      userName: state.userName ?? widget.userName,
-                      isNewUser: widget.isNewUser,
-                      userId: widget.userId,
-                      isDarkBackground: false,
-                    ),
-   const SizedBox(height: 25),
-                    // Stats Card
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: HomeSummaryCard(
-                        totalBudget: totalBudget,
-                        // totalProjects: totalProjects, // Removed
-                        activeProjects: activeProjectsCount,
-                        onActiveProjectsTap: () {
-                          if (state.projects.isNotEmpty) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => DashboardScreen(
-                                  userName: widget.userName,
-                                  projects: state.projects,
-                                ),
-                              ),
-                            );
-                          }
-                        },
+        return CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Stack(
+                children: [
+                  // Green Gradient Header Background
+                  Container(
+                    height: 300,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          AppColors.primary,
+                          AppColors.gradientTop,
+                          Color(0xFFF7F8FA),
+                        ],
+                        stops: [0.0, 0.7, 1.0],
                       ),
                     ),
-                  ],
+                  ),
+
+                  // White Bubble Decoration
+                  Positioned(
+                    top: -100,
+                    right: -50,
+                    child: Container(
+                      width: 300,
+                      height: 300,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                    ),
+                  ),
+
+                  // Header Content
+                  Column(
+                    children: [
+                      HomeHeader(
+                        userName: state.userName ?? widget.userName,
+                        isNewUser: widget.isNewUser,
+                        userId: widget.userId,
+                        isDarkBackground: true,
+                      ),
+                      const SizedBox(height: 40),
+                      // Stats Card
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20.0,
+                          vertical: 40.0,
+                        ),
+                        child: HomeSummaryCard(
+                          totalBudget: totalBudget,
+                          activeProjects: activeProjectsCount,
+                          onActiveProjectsTap: () {
+                            if (state.projects.isNotEmpty) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => DashboardScreen(
+                                    userName: widget.userName,
+                                    projects: state.projects,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            if (state.projects.isNotEmpty) ...[
+              SliverPadding(
+                padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                sliver: SliverToBoxAdapter(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Recent Projects",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.heading,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          "View All",
+                          style: TextStyle(
+                            color: AppColors.primaryLight,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-
-              if (state.projects.isNotEmpty) ...[
-                SliverPadding(
-                  padding: const EdgeInsets.only(
-                    left: 20,
-                    right: 20,
-                    top: 30, // Adjust spacing
-                    bottom: 10,
-                  ),
-                  sliver: SliverToBoxAdapter(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Recent Projects",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.heading,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            "View All",
-                            style: TextStyle(
-                              color: AppColors.primaryLight,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final project = state.projects[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => DashboardScreen(
-                                  userName: widget.userName,
-                                  projects: state.projects,
-                                  projectId:
-                                      project['_id'], // Pass ID to enable single-project/material mode
-                                ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final project = state.projects[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DashboardScreen(
+                                userName: widget.userName,
+                                projects: state.projects,
+                                projectId: project['_id'],
                               ),
-                            );
-                          },
-                          child: ProjectCard(
-                            project: project,
-                            onEdit: () =>
-                                _handleProjectAction(context, project: project),
-                            onDelete: () =>
-                                _confirmDelete(context, project['_id']),
-                          ),
+                            ),
+                          );
+                        },
+                        child: ProjectCard(
+                          project: project,
+                          onEdit: () =>
+                              _handleProjectAction(context, project: project),
+                          onDelete: () =>
+                              _confirmDelete(context, project['_id']),
                         ),
-                      );
-                    }, childCount: state.projects.length),
+                      ),
+                    );
+                  }, childCount: state.projects.length),
+                ),
+              ),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 100), // Padded for FAB/Nav
+              ),
+            ] else ...[
+              // Empty State
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 50),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.folder_open,
+                        size: 80,
+                        color: Colors.grey[300],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "No projects yet",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey[500],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Create your first project to get started",
+                        style: TextStyle(color: Colors.grey[400]),
+                      ),
+                    ],
                   ),
                 ),
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: 100),
-                ), // Bottom padding
-              ] else ...[
-                // Empty State
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 50),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.folder_open,
-                          size: 80,
-                          color: Colors.grey[300],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "No projects yet",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey[500],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Create your first project to get started",
-                          style: TextStyle(color: Colors.grey[400]),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ],
-          );
-        },
-      ),
+          ],
+        );
+      },
     );
   }
 

@@ -1,10 +1,10 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import '../../auth/data/auth_api_service.dart';
 import '../data/home_api_service.dart';
 import 'home_event.dart';
 import 'home_state.dart';
 
-class HomeBloc extends Bloc<HomeEvent, HomeState> {
+class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
   final HomeApiService api;
   final AuthApiService authApi;
 
@@ -244,5 +244,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
+  }
+
+  @override
+  HomeState? fromJson(Map<String, dynamic> json) {
+    return HomeState.fromJson(json);
+  }
+
+  @override
+  Map<String, dynamic>? toJson(HomeState state) {
+    return state.toJson();
   }
 }

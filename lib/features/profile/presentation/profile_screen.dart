@@ -6,6 +6,8 @@ import 'package:construction_app/features/home/bloc/home_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:construction_app/features/auth/presentation/login_screen.dart';
+
 class ProfileScreen extends StatelessWidget {
   final String userName;
   final String email;
@@ -18,7 +20,15 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeBloc, HomeState>(
+    return BlocConsumer<HomeBloc, HomeState>(
+      listener: (context, state) {
+        if (state.isLoggedOut) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (route) => false,
+          );
+        }
+      },
       builder: (context, state) {
         // Use state name if valid, otherwise fallback to passed userName
         final currentUserName =

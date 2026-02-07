@@ -21,7 +21,12 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 60, 20, 0),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        MediaQuery.of(context).padding.top + 20, // Adjust for status bar
+        20,
+        0,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -91,51 +96,6 @@ class HomeHeader extends StatelessWidget {
                 ],
               ),
             ],
-          ),
-          GestureDetector(
-            onTap: () {
-              // TODO: Implement Logout Logic
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text("Logout"),
-                  content: const Text("Are you sure you want to logout?"),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("Cancel"),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        context.read<HomeBloc>().add(LogoutEvent());
-                      },
-                      child: const Text(
-                        "Logout",
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isDarkBackground
-                    ? Colors.white.withOpacity(0.15)
-                    : Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: isDarkBackground
-                    ? null
-                    : Border.all(color: Colors.grey[200]!),
-              ),
-              child: Icon(
-                Icons.logout_rounded,
-                size: 24,
-                color: isDarkBackground ? Colors.white : Colors.grey[700],
-              ),
-            ),
           ),
         ],
       ),

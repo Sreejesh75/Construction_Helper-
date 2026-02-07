@@ -59,4 +59,26 @@ class HomeState extends Equatable {
     userId,
     isLoggedOut,
   ];
+
+  Map<String, dynamic> toJson() {
+    return {
+      'projects': projects,
+      'materials': materials,
+      'projectSummary': projectSummary,
+      'userName': userName,
+      'userId': userId,
+      'isLoggedOut': isLoggedOut,
+    };
+  }
+
+  factory HomeState.fromJson(Map<String, dynamic> json) {
+    return HomeState(
+      projects: json['projects'] ?? [],
+      materials: json['materials'] ?? [],
+      projectSummary: json['projectSummary'],
+      userName: json['userName'],
+      userId: json['userId'],
+      isLoggedOut: json['isLoggedOut'] ?? false,
+    );
+  }
 }
