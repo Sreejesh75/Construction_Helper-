@@ -22,16 +22,34 @@ class _AddMaterialBottomSheetState extends State<AddMaterialBottomSheet> {
 
   DateTime? _date = DateTime.now();
 
+  // Update initState to initialize _priceController with total price (unit price * quantity)
   @override
   void initState() {
     super.initState();
     if (widget.material != null) {
       _nameController.text = widget.material!['name'] ?? '';
       _categoryController.text = widget.material!['category'] ?? '';
+
+      final quantity =
+          double.tryParse((widget.material!['quantity'] ?? '').toString()) ??
+          0.0;
+      final unitPrice =
+          double.tryParse((widget.material!['price'] ?? '').toString()) ?? 0.0;
+
       _quantityController.text = (widget.material!['quantity'] ?? '')
           .toString();
       _unitController.text = widget.material!['unit'] ?? '';
-      _priceController.text = (widget.material!['price'] ?? '').toString();
+
+      // Calculate and set total price for display
+      final totalPrice = unitPrice * quantity;
+
+      // Use modulus to check if it's an integer value effectively (e.g., 200.0 -> 200)
+      if (totalPrice % 1 == 0) {
+        _priceController.text = totalPrice.toInt().toString();
+      } else {
+        _priceController.text = totalPrice.toString();
+      }
+
       _supplierController.text = widget.material!['supplier'] ?? '';
       try {
         _date = DateTime.tryParse(widget.material!['date'] ?? '');
@@ -396,6 +414,7 @@ class _AddMaterialBottomSheetState extends State<AddMaterialBottomSheet> {
     );
   }
 
+  // Update _saveMaterial to calculate unit price before saving
   void _saveMaterial() {
     final category = _categoryController.text.trim();
     if (_nameController.text.trim().isEmpty ||
@@ -430,14 +449,22 @@ class _AddMaterialBottomSheetState extends State<AddMaterialBottomSheet> {
 
     try {
       final quantity = double.parse(_quantityController.text.trim());
-      final price = double.parse(_priceController.text.trim());
+      final totalPrice = double.parse(_priceController.text.trim());
+
+      // Calculate unit price to send to backend
+      // Backend calculates spent as: unit_price * quantity
+      // So we must store: unit_price = total_price / quantity
+      double unitPrice = 0.0;
+      if (quantity > 0) {
+        unitPrice = totalPrice / quantity;
+      }
 
       Navigator.pop(context, {
         "name": _nameController.text.trim(),
         "category": category,
         "quantity": quantity,
         "unit": _unitController.text.trim(),
-        "price": price,
+        "price": unitPrice, // Sending calculated unit price
         "supplier": _supplierController.text.trim(),
         "date": _date!.toIso8601String(),
       });

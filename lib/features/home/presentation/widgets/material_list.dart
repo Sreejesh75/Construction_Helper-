@@ -49,9 +49,12 @@ class MaterialList extends StatelessWidget {
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final material = materials[index];
-        final price = (material['price'] ?? 0).toDouble();
+        final unitPrice = (material['price'] ?? 0).toDouble();
         final qty = (material['quantity'] ?? 0).toDouble();
         final unit = material['unit'] ?? '';
+
+        // Calculate total price for display
+        final totalPrice = unitPrice * qty;
 
         return Container(
           decoration: BoxDecoration(
@@ -106,7 +109,7 @@ class MaterialList extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  "₹${price.toStringAsFixed(0)}",
+                  "₹${totalPrice.toStringAsFixed(0)}",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
