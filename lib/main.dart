@@ -7,7 +7,6 @@ import 'package:construction_app/features/home/bloc/home_bloc.dart';
 import 'package:construction_app/features/home/data/home_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 

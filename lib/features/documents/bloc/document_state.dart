@@ -22,7 +22,7 @@ class DocumentState extends Equatable {
     return DocumentState(
       isLoading: isLoading ?? this.isLoading,
       documents: documents ?? this.documents,
-      error: error, // Clear error on new state unless explicitly set
+      error: error, 
       uploadSuccess: uploadSuccess ?? this.uploadSuccess,
     );
   }

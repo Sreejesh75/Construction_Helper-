@@ -28,6 +28,7 @@ class _AddProgressSheetState extends State<AddProgressSheet> {
   late TextEditingController _startDateController;
   late TextEditingController _endDateController;
   late TextEditingController _remarksController;
+  bool _showWarning = false;
 
   final List<String> _sections = [
     'Foundation',
@@ -77,7 +78,6 @@ class _AddProgressSheetState extends State<AddProgressSheet> {
       lastDate: DateTime(2030),
     );
     if (picked != null) {
-      // Simple date formatting YYYY-MM-DD
       final formatted =
           "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
       setState(() {
@@ -89,7 +89,7 @@ class _AddProgressSheetState extends State<AddProgressSheet> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       final newProgress = ConstructionProgressModel(
-        id: widget.existingProgress?.id, // ID null for new, exists for update
+        id: widget.existingProgress?.id,
         projectId: widget.projectId,
         section: _section,
         progress: _progress.toInt(),
@@ -134,25 +134,83 @@ class _AddProgressSheetState extends State<AddProgressSheet> {
                   color: Colors.black87,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+
+              if (_showWarning)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Colors.redAccent.withOpacity(0.5),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.info_outline,
+                        color: Colors.redAccent,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          "you can set section only once",
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                const SizedBox(height: 8),
 
               // Section Dropdown
-              DropdownButtonFormField<String>(
-                value: _sections.contains(_section) ? _section : 'Other',
-                decoration: const InputDecoration(
-                  labelText: "Section",
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
+              GestureDetector(
+                onTap: () {
+                  if (widget.existingProgress != null) {
+                    setState(() {
+                      _showWarning = true;
+                    });
+                    Future.delayed(const Duration(seconds: 3), () {
+                      if (mounted) {
+                        setState(() {
+                          _showWarning = false;
+                        });
+                      }
+                    });
+                  }
+                },
+                child: AbsorbPointer(
+                  absorbing: widget.existingProgress != null,
+                  child: DropdownButtonFormField<String>(
+                    value: _sections.contains(_section) ? _section : 'Other',
+                    decoration: const InputDecoration(
+                      labelText: "Section",
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
+                    ),
+                    items: _sections
+                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) setState(() => _section = val);
+                    },
                   ),
                 ),
-                items: _sections
-                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                    .toList(),
-                onChanged: (val) {
-                  if (val != null) setState(() => _section = val);
-                },
               ),
               const SizedBox(height: 16),
 

@@ -12,7 +12,7 @@ class MaterialCategories {
     "Sanitary Ware",
     "Bathroom Fittings",
     "Electrical Materials",
-    "Lighting & Fixtures",
+    "Lighting & Fixtures", 
     "Paints & Coatings",
     "Waterproofing & Chemicals",
     "Hardware & Fasteners",

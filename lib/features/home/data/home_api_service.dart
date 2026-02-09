@@ -31,7 +31,7 @@ class HomeApiService {
     }
   }
 
-  /// GET PROJECTS (by userId)
+  // GET PROJECTS (by userId)
 
   Future<List<dynamic>> getProjects(String userId) async {
     final response = await _dio.get("${ApiConstants.getProjects}/$userId");

@@ -57,6 +57,20 @@ class _LoginView extends StatelessWidget {
           backgroundColor: AppColors.gradientTop,
           body: Stack(
             children: [
+              // White Bubble Decoration
+              Positioned(
+                top: -100,
+                right: -50,
+                child: Container(
+                  width: 300,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.1),
+                  ),
+                ),
+              ),
+
               // Top Background & Animation
               Column(
                 children: [
@@ -65,7 +79,7 @@ class _LoginView extends StatelessWidget {
                     width: double.infinity,
                     child: Center(
                       child: Padding(
-                        padding: const EdgeInsets.only(top: 40),
+                        padding: const EdgeInsets.only(top: 30),
                         child: Lottie.asset(
                           'assets/images/login_animation.json',
                           fit: BoxFit.contain,
@@ -81,12 +95,21 @@ class _LoginView extends StatelessWidget {
                 alignment: Alignment.bottomCenter,
                 child: Container(
                   height: size.height * 0.6,
-                  decoration: const BoxDecoration(
+                  margin: const EdgeInsets.all(
+                    16,
+                  ), // Add margin for floating effect
+                  decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
+                    borderRadius: BorderRadius.circular(
+                      30,
+                    ), // Rounded corners on all sides
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
                   ),
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
@@ -210,10 +233,10 @@ class _LoginView extends StatelessWidget {
                           Center(
                             child: TextButton(
                               onPressed: () {
-                                // TODO: Implement support/workspace finding navigation
+                                
                               },
                               child: Text(
-                                "Need help finding your workspace?",
+                                "Want to know more about the app and?",
                                 style: TextStyle(
                                   color: AppColors.primary.withOpacity(0.8),
                                   fontWeight: FontWeight.w600,

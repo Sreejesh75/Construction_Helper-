@@ -22,7 +22,7 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     on<LogoutEvent>(_logout);
   }
 
-  /// Logout
+  //Logout
   Future<void> _logout(LogoutEvent event, Emitter<HomeState> emit) async {
     try {
       await authApi.logout();
@@ -32,9 +32,9 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     }
   }
 
-  // ... existing methods
+  // existing methods
 
-  /// Load materials for a project
+  // Load materials for a project
   Future<void> _loadMaterials(
     LoadMaterials event,
     Emitter<HomeState> emit,

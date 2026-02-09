@@ -31,4 +31,5 @@ class ApiConstants {
   // Construction Progress APIs
   static const String addProgress = "/api/progress/add";
   static const String getProgress = "/api/progress";
+  static const String updateProgress = "/api/progress/update";
 }

@@ -28,10 +28,16 @@ class ConstructionProgressApiService {
 
   Future<void> addOrUpdateProgress(ConstructionProgressModel progress) async {
     try {
+      // Check if it's an update (has ID)
+      final isUpdate = progress.id != null && progress.id!.isNotEmpty;
+
       final url = Uri.parse(
-        "${ApiConstants.baseUrl}${ApiConstants.addProgress}",
+        isUpdate
+            ? "${ApiConstants.baseUrl}${ApiConstants.updateProgress}"
+            : "${ApiConstants.baseUrl}${ApiConstants.addProgress}",
       );
-      final response = await http.post(
+
+      final response = await (isUpdate ? http.put : http.post)(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(progress.toJson()),
