@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:construction_app/core/theme/app_color.dart';
-// Assuming this ex
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Navigate after 4 seconds
+ 
     Timer(const Duration(seconds: 6), () {
       Navigator.pushReplacement(
         context,
@@ -33,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Gradient
+  
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -44,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
           ),
 
-          // Background Bubbles (Modern & Large)
+  
           Positioned(
             top: -100,
             left: -100,
@@ -82,12 +81,12 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
           ),
 
-          // Main Content
+    
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Lottie Animation
+             
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Lottie.asset(
@@ -97,7 +96,6 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                 ),
 
-                // Animated Text
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

@@ -17,22 +17,29 @@ class _AddMaterialBottomSheetState extends State<AddMaterialBottomSheet> {
   final _categoryController = TextEditingController();
   final _quantityController = TextEditingController();
   final _unitController = TextEditingController();
-  final _priceController = TextEditingController();
+  final _unitPriceController =
+      TextEditingController(); // New controller for Unit Price
+  final _priceController =
+      TextEditingController(); // Total Price (Auto-calculated)
   final _supplierController = TextEditingController();
 
   DateTime? _date = DateTime.now();
 
-  // Update initState to initialize _priceController with total price (unit price * quantity)
+  // Update initState to initialize controllers and add listeners
   @override
   void initState() {
     super.initState();
+
+    // Add listeners for auto-calculation
+    _quantityController.addListener(_updateTotalPrice);
+    _unitPriceController.addListener(_updateTotalPrice);
+
     if (widget.material != null) {
       _nameController.text = widget.material!['name'] ?? '';
       _categoryController.text = widget.material!['category'] ?? '';
 
-      final quantity =
-          double.tryParse((widget.material!['quantity'] ?? '').toString()) ??
-          0.0;
+      double.tryParse((widget.material!['quantity'] ?? '').toString()) ?? 0.0;
+      // quantity variable removed as it was unused locally here
       final unitPrice =
           double.tryParse((widget.material!['price'] ?? '').toString()) ?? 0.0;
 
@@ -40,20 +47,49 @@ class _AddMaterialBottomSheetState extends State<AddMaterialBottomSheet> {
           .toString();
       _unitController.text = widget.material!['unit'] ?? '';
 
-      // Calculate and set total price for display
-      final totalPrice = unitPrice * quantity;
-
-      // Use modulus to check if it's an integer value effectively (e.g., 200.0 -> 200)
-      if (totalPrice % 1 == 0) {
-        _priceController.text = totalPrice.toInt().toString();
+      // key change: initialize unit price controller
+      if (unitPrice % 1 == 0) {
+        _unitPriceController.text = unitPrice.toInt().toString();
       } else {
-        _priceController.text = totalPrice.toString();
+        _unitPriceController.text = unitPrice.toString();
       }
+
+      // Calculate and set total price for display
+      _updateTotalPrice();
 
       _supplierController.text = widget.material!['supplier'] ?? '';
       try {
         _date = DateTime.tryParse(widget.material!['date'] ?? '');
       } catch (_) {}
+    }
+  }
+
+  void _updateTotalPrice() {
+    final quantity = double.tryParse(_quantityController.text.trim()) ?? 0.0;
+    final unitPrice = double.tryParse(_unitPriceController.text.trim()) ?? 0.0;
+
+    if (quantity == 0 || unitPrice == 0) {
+      if (_priceController.text != '0') {
+        _priceController.text =
+            '0'; // Only update if needed to avoid infinite loop implications (though unlikely with text)
+      }
+      return;
+    }
+
+    final totalPrice = quantity * unitPrice;
+
+    // Use modulus to check if it's an integer value
+    String newPrice;
+    if (totalPrice % 1 == 0) {
+      newPrice = totalPrice.toInt().toString();
+    } else {
+      newPrice = totalPrice.toStringAsFixed(
+        2,
+      ); // Keep 2 decimal precision for currency
+    }
+
+    if (_priceController.text != newPrice) {
+      _priceController.text = newPrice;
     }
   }
 
@@ -86,6 +122,7 @@ class _AddMaterialBottomSheetState extends State<AddMaterialBottomSheet> {
     _categoryController.dispose();
     _quantityController.dispose();
     _unitController.dispose();
+    _unitPriceController.dispose(); // Dispose new controller
     _priceController.dispose();
     _supplierController.dispose();
     super.dispose();
@@ -270,12 +307,30 @@ class _AddMaterialBottomSheetState extends State<AddMaterialBottomSheet> {
                 ],
               ),
               const SizedBox(height: 16),
-              _buildTextField(
-                controller: _priceController,
-                label: "Total Price",
-                icon: Icons.attach_money,
-                inputType: TextInputType.number,
-                prefixText: "₹ ",
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildTextField(
+                      controller: _unitPriceController,
+                      label: "Price per Unit",
+                      icon: Icons.price_change_outlined,
+                      inputType: TextInputType.number,
+                      prefixText: "₹ ",
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildTextField(
+                      controller: _priceController,
+                      label: "Total Price",
+                      icon: Icons.attach_money,
+                      inputType: TextInputType.number,
+                      prefixText: "₹ ",
+                      readOnly: true, // Make Total Price read-only
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               _buildTextField(
@@ -335,10 +390,11 @@ class _AddMaterialBottomSheetState extends State<AddMaterialBottomSheet> {
     required IconData icon,
     TextInputType inputType = TextInputType.text,
     String? prefixText,
+    bool readOnly = false,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[50], // Soft background
+        color: readOnly ? Colors.grey[200] : Colors.grey[50],
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey[200]!),
       ),
@@ -346,7 +402,11 @@ class _AddMaterialBottomSheetState extends State<AddMaterialBottomSheet> {
       child: TextField(
         controller: controller,
         keyboardType: inputType,
-        style: const TextStyle(fontWeight: FontWeight.w500),
+        readOnly: readOnly,
+        style: TextStyle(
+          fontWeight: FontWeight.w500,
+          color: readOnly ? Colors.grey[600] : Colors.black87,
+        ),
         decoration: InputDecoration(
           border: InputBorder.none,
           icon: Icon(icon, color: AppColors.primary, size: 20),
@@ -414,17 +474,17 @@ class _AddMaterialBottomSheetState extends State<AddMaterialBottomSheet> {
     );
   }
 
-  // Update _saveMaterial to calculate unit price before saving
+  // Update _saveMaterial to use unitPrice directly
   void _saveMaterial() {
     final category = _categoryController.text.trim();
     if (_nameController.text.trim().isEmpty ||
         _quantityController.text.trim().isEmpty ||
-        _priceController.text.trim().isEmpty ||
+        _unitPriceController.text.trim().isEmpty || // Check unit price instead
         _date == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text(
-            "Please fill required fields (Name, Qty, Price, Date)",
+            "Please fill required fields (Name, Qty, Unit Price, Date)",
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: Colors.redAccent,
@@ -449,22 +509,16 @@ class _AddMaterialBottomSheetState extends State<AddMaterialBottomSheet> {
 
     try {
       final quantity = double.parse(_quantityController.text.trim());
-      final totalPrice = double.parse(_priceController.text.trim());
-
-      // Calculate unit price to send to backend
-      // Backend calculates spent as: unit_price * quantity
-      // So we must store: unit_price = total_price / quantity
-      double unitPrice = 0.0;
-      if (quantity > 0) {
-        unitPrice = totalPrice / quantity;
-      }
+      final unitPrice = double.parse(
+        _unitPriceController.text.trim(),
+      ); // Parse unit price directly
 
       Navigator.pop(context, {
         "name": _nameController.text.trim(),
         "category": category,
         "quantity": quantity,
         "unit": _unitController.text.trim(),
-        "price": unitPrice, // Sending calculated unit price
+        "price": unitPrice, // Sending direct unit price
         "supplier": _supplierController.text.trim(),
         "date": _date!.toIso8601String(),
       });

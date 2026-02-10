@@ -81,7 +81,7 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     emit(state.copyWith(isLoadingMaterials: true, error: null));
 
     try {
-      await api.updateMaterial(event.materialId, {
+      final remark = await api.updateMaterial(event.materialId, {
         "projectId": event.projectId,
         "name": event.name,
         "category": event.category,
@@ -92,9 +92,21 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
         "date": event.date,
       });
 
-      // Reload materials and summary
+      // Reload materials and summary, and emit remark
       add(LoadMaterials(event.projectId));
       add(LoadProjectSummary(event.projectId));
+
+      emit(
+        state.copyWith(
+          isLoadingMaterials: false,
+          updateMessage: remark, // Emit the remark
+          // trigger a state change even if remark is same?
+          // usually bloc listeners activate on state change.
+          // If we want to show snackbar, we might need to reset it later or use a custom equatable config.
+          // For now, assuming remark changes or is different enough.
+          // A better pattern is to emit null after consuming, but let's see.
+        ),
+      );
     } catch (e) {
       emit(state.copyWith(isLoadingMaterials: false, error: e.toString()));
     }

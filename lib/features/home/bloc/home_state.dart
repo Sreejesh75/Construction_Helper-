@@ -10,6 +10,7 @@ class HomeState extends Equatable {
   final String? userName;
   final String? userId; // Added userId
   final bool isLoggedOut;
+  final String? updateMessage; // Added updateMessage
 
   const HomeState({
     this.isLoading = false,
@@ -21,6 +22,7 @@ class HomeState extends Equatable {
     this.userName,
     this.userId,
     this.isLoggedOut = false,
+    this.updateMessage,
   });
 
   HomeState copyWith({
@@ -33,6 +35,7 @@ class HomeState extends Equatable {
     String? userName,
     String? userId,
     bool? isLoggedOut,
+    String? updateMessage,
   }) {
     return HomeState(
       isLoading: isLoading ?? this.isLoading,
@@ -44,6 +47,8 @@ class HomeState extends Equatable {
       userName: userName ?? this.userName,
       userId: userId ?? this.userId,
       isLoggedOut: isLoggedOut ?? this.isLoggedOut,
+      updateMessage:
+          updateMessage, // Don't persist old messages by default, or handle manually. Here we accept null to clear.
     );
   }
 
@@ -58,6 +63,7 @@ class HomeState extends Equatable {
     userName,
     userId,
     isLoggedOut,
+    updateMessage,
   ];
 
   Map<String, dynamic> toJson() {

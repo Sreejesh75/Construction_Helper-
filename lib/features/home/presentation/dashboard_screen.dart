@@ -41,287 +41,308 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeBloc, HomeState>(
-      builder: (context, state) {
-        // Determine values to show
-        int totalProjectsVal = widget.projects.length;
-        int activeProjectsVal;
-        double totalBudgetVal = 0;
+    return BlocListener<HomeBloc, HomeState>(
+      listenWhen: (previous, current) =>
+          previous.updateMessage != current.updateMessage &&
+          current.updateMessage != null,
+      listener: (context, state) {
+        if (state.updateMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.updateMessage!),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      },
+      child: BlocBuilder<HomeBloc, HomeState>(
+        builder: (context, state) {
+          // Determine values to show
+          int totalProjectsVal = widget.projects.length;
+          int activeProjectsVal;
+          double totalBudgetVal = 0;
 
-        dynamic summary = state.projectSummary;
-        bool isSingleProjectConfig =
-            widget.projectId != null && summary != null;
+          dynamic summary = state.projectSummary;
+          bool isSingleProjectConfig =
+              widget.projectId != null && summary != null;
 
-        if (isSingleProjectConfig) {
-          totalProjectsVal = summary['materialsCount'] ?? 0;
-          activeProjectsVal = summary['totalSpent'] ?? 0;
-          totalBudgetVal = (summary['budget'] ?? 0).toDouble();
-        } else {
-          activeProjectsVal = widget.projects.where((p) {
-            try {
-              if (p['endDate'] == null) return true;
-              final end = DateTime.parse(p['endDate']);
-              return end.isAfter(DateTime.now());
-            } catch (e) {
-              return false;
-            }
-          }).length;
+          if (isSingleProjectConfig) {
+            totalProjectsVal = summary['materialsCount'] ?? 0;
+            activeProjectsVal = summary['totalSpent'] ?? 0;
+            totalBudgetVal = (summary['budget'] ?? 0).toDouble();
+          } else {
+            activeProjectsVal = widget.projects.where((p) {
+              try {
+                if (p['endDate'] == null) return true;
+                final end = DateTime.parse(p['endDate']);
+                return end.isAfter(DateTime.now());
+              } catch (e) {
+                return false;
+              }
+            }).length;
 
-          for (var p in widget.projects) {
-            if (p['budget'] is num) {
-              totalBudgetVal += p['budget'];
+            for (var p in widget.projects) {
+              if (p['budget'] is num) {
+                totalBudgetVal += p['budget'];
+              }
             }
           }
-        }
 
-        return Scaffold(
-          extendBodyBehindAppBar: true,
-          floatingActionButton: isSingleProjectConfig
-              ? FloatingActionButton(
-                  onPressed: () => _showAddMaterialDialog(context),
-                  backgroundColor: AppColors.primary,
-                  child: const Icon(Icons.add, color: Colors.white),
-                )
-              : null,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: Container(
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: Colors.white,
-                  size: 18,
+          return Scaffold(
+            extendBodyBehindAppBar: true,
+            floatingActionButton: isSingleProjectConfig
+                ? FloatingActionButton(
+                    onPressed: () => _showAddMaterialDialog(context),
+                    backgroundColor: AppColors.primary,
+                    child: const Icon(Icons.add, color: Colors.white),
+                  )
+                : null,
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-            title: Text(
-              isSingleProjectConfig
-                  ? (summary['projectName'] ?? "Project Insights")
-                  : "Project Insights",
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            centerTitle: true,
-          ),
-          body: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  AppColors.primary,
-                  AppColors.gradientTop,
-                  Color(0xFFF5F7FA),
-                ],
-                stops: [0.0, 0.4, 0.4],
-              ),
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: -100,
-                  right: -50,
-                  child: Container(
-                    width: 300,
-                    height: 300,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(0.05),
-                    ),
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new,
+                    color: Colors.white,
+                    size: 18,
                   ),
+                  onPressed: () => Navigator.pop(context),
                 ),
-
-                Column(
-                  children: [
-                    SizedBox(height: 110 + MediaQuery.of(context).padding.top),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        children: [
-                          const Text(
-                            "Overview",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            isSingleProjectConfig
-                                ? "Project Summary"
-                                : (widget.projects.isEmpty
-                                      ? "No Data"
-                                      : "Financial Summary"),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+              ),
+              title: Text(
+                isSingleProjectConfig
+                    ? (summary['projectName'] ?? "Project Insights")
+                    : "Project Insights",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              centerTitle: true,
+            ),
+            body: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.primary,
+                    AppColors.gradientTop,
+                    Color(0xFFF5F7FA),
+                  ],
+                  stops: [0.0, 0.4, 0.4],
+                ),
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: -100,
+                    right: -50,
+                    child: Container(
+                      width: 300,
+                      height: 300,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.05),
                       ),
                     ),
+                  ),
 
-                    const SizedBox(height: 30),
-
-                    DashboardStats(
-                      totalProjects: totalProjectsVal,
-                      activeProjects: activeProjectsVal,
-                      totalBudget: totalBudgetVal,
-                      isSingleProject: isSingleProjectConfig,
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    Expanded(
-                      child: SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.only(
-                          left: 24,
-                          right: 24,
-                          top: 10, // Reduced top padding
-                          bottom: 24,
-                        ),
+                  Column(
+                    children: [
+                      SizedBox(
+                        height: 110 + MediaQuery.of(context).padding.top,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  isSingleProjectConfig
-                                      ? "Materials"
-                                      : "Analytics",
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                if (!isSingleProjectConfig)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          "This Month",
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Icon(
-                                          Icons.keyboard_arrow_down_rounded,
-                                          size: 16,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                              ],
+                            const Text(
+                              "Overview",
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 1.2,
+                              ),
                             ),
-                            const SizedBox(height: 20),
-                            if (isSingleProjectConfig) ...[
-                              CategoryFilterBar(
-                                selectedCategory: _selectedCategory,
-                                onCategorySelected: (category) {
-                                  setState(() {
-                                    _selectedCategory = category;
-                                  });
-                                },
+                            const SizedBox(height: 5),
+                            Text(
+                              isSingleProjectConfig
+                                  ? "Project Summary"
+                                  : (widget.projects.isEmpty
+                                        ? "No Data"
+                                        : "Financial Summary"),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
                               ),
-                              const SizedBox(height: 16),
-                              MaterialList(
-                                materials: state.materials.where((m) {
-                                  if (_selectedCategory == "All") {
-                                    return true;
-                                  }
-
-                                  final matCategory =
-                                      (m['category'] as String?)?.trim() ?? "";
-
-                                  return matCategory.toLowerCase() ==
-                                      _selectedCategory.toLowerCase();
-                                }).toList(),
-                                onEdit: (m) =>
-                                    _showAddMaterialDialog(context, m),
-                                onDelete: (m) => context.read<HomeBloc>().add(
-                                  DeleteMaterial(
-                                    materialId: m['_id'],
-                                    projectId: widget.projectId!,
-                                  ),
-                                ),
-                              ),
-                            ] else
-                              Container(
-                                height: 220,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(
-                                    color: Colors.grey.shade100,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.03),
-                                      blurRadius: 15,
-                                      offset: const Offset(0, 5),
-                                    ),
-                                  ],
-                                ),
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.bar_chart_rounded,
-                                      size: 48,
-                                      color: Colors.grey[300],
-                                    ),
-                                    Positioned(
-                                      bottom: 20,
-                                      child: Text(
-                                        "No analytics data available",
-                                        style: TextStyle(
-                                          color: Colors.grey[400],
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                            ),
                           ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+
+                      const SizedBox(height: 30),
+
+                      DashboardStats(
+                        totalProjects: totalProjectsVal,
+                        activeProjects: activeProjectsVal,
+                        totalBudget: totalBudgetVal,
+                        isSingleProject: isSingleProjectConfig,
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      Expanded(
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.only(
+                            left: 24,
+                            right: 24,
+                            top: 10, // Reduced top padding
+                            bottom: 24,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    isSingleProjectConfig
+                                        ? "Materials"
+                                        : "Analytics",
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  if (!isSingleProjectConfig)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            "This Month",
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Icon(
+                                            Icons.keyboard_arrow_down_rounded,
+                                            size: 16,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              if (isSingleProjectConfig) ...[
+                                CategoryFilterBar(
+                                  selectedCategory: _selectedCategory,
+                                  onCategorySelected: (category) {
+                                    setState(() {
+                                      _selectedCategory = category;
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                                MaterialList(
+                                  materials: state.materials.where((m) {
+                                    if (_selectedCategory == "All") {
+                                      return true;
+                                    }
+
+                                    final matCategory =
+                                        (m['category'] as String?)?.trim() ??
+                                        "";
+
+                                    return matCategory.toLowerCase() ==
+                                        _selectedCategory.toLowerCase();
+                                  }).toList(),
+                                  onEdit: (m) =>
+                                      _showAddMaterialDialog(context, m),
+                                  onDelete: (m) => context.read<HomeBloc>().add(
+                                    DeleteMaterial(
+                                      materialId: m['_id'],
+                                      projectId: widget.projectId!,
+                                    ),
+                                  ),
+                                ),
+                              ] else
+                                Container(
+                                  height: 220,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(24),
+                                    border: Border.all(
+                                      color: Colors.grey.shade100,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.03),
+                                        blurRadius: 15,
+                                        offset: const Offset(0, 5),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.bar_chart_rounded,
+                                        size: 48,
+                                        color: Colors.grey[300],
+                                      ),
+                                      Positioned(
+                                        bottom: 20,
+                                        child: Text(
+                                          "No analytics data available",
+                                          style: TextStyle(
+                                            color: Colors.grey[400],
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

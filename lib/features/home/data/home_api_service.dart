@@ -118,7 +118,7 @@ class HomeApiService {
   }
 
   /// UPDATE MATERIAL
-  Future<void> updateMaterial(
+  Future<String?> updateMaterial(
     String materialId,
     Map<String, dynamic> data,
   ) async {
@@ -130,6 +130,9 @@ class HomeApiService {
     if (response.data['status'] != true) {
       throw Exception(response.data['message']);
     }
+
+    // Return the remark if available
+    return response.data['material']?['lastUpdateRemark'] as String?;
   }
 
   /// DELETE MATERIAL
