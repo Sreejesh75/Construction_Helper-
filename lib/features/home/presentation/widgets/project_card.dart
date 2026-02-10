@@ -52,14 +52,14 @@ class ProjectCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white, // Solid White
+            color: const Color(0xFFF5F9F8), // Light Minty Grey for separation
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.grey.withOpacity(0.1), width: 1),
+            border: Border.all(color: Colors.grey.withOpacity(0.08), width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: Colors.grey.withOpacity(0.08),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
               ),
             ],
           ),

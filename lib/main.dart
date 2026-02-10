@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:construction_app/features/splash/presentation/screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,7 +68,9 @@ class ConstructionApp extends StatelessWidget {
           ),
         ),
 
-        home: const LoginScreen(),
+
+
+        home: const SplashScreen(),
       ),
     );
   }
