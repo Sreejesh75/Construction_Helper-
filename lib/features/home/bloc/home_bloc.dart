@@ -92,19 +92,13 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
         "date": event.date,
       });
 
-      // Reload materials and summary, and emit remark
       add(LoadMaterials(event.projectId));
       add(LoadProjectSummary(event.projectId));
 
       emit(
         state.copyWith(
           isLoadingMaterials: false,
-          updateMessage: remark, // Emit the remark
-          // trigger a state change even if remark is same?
-          // usually bloc listeners activate on state change.
-          // If we want to show snackbar, we might need to reset it later or use a custom equatable config.
-          // For now, assuming remark changes or is different enough.
-          // A better pattern is to emit null after consuming, but let's see.
+          updateMessage: remark, 
         ),
       );
     } catch (e) {
@@ -112,7 +106,7 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     }
   }
 
-  /// Delete material
+
   Future<void> _deleteMaterial(
     DeleteMaterial event,
     Emitter<HomeState> emit,
@@ -122,7 +116,7 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     try {
       await api.deleteMaterial(event.materialId);
 
-      // Reload materials and summary
+  
       add(LoadMaterials(event.projectId));
       add(LoadProjectSummary(event.projectId));
     } catch (e) {
@@ -134,7 +128,7 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     LoadProjects event,
     Emitter<HomeState> emit,
   ) async {
-    // Only update userName if it's a new user login or we don't have one yet
+
     final shouldUpdateName =
         state.userId != event.userId || state.userName == null;
     final currentUserName = shouldUpdateName ? event.userName : state.userName;
@@ -158,7 +152,6 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     }
   }
 
-  /// Create project and refresh list
   Future<void> _createProject(
     CreateProject event,
     Emitter<HomeState> emit,
@@ -182,7 +175,6 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     }
   }
 
-  /// Update project and refresh list
   Future<void> _updateProject(
     UpdateProject event,
     Emitter<HomeState> emit,
@@ -206,7 +198,6 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     }
   }
 
-  /// Delete project and refresh list
   Future<void> _deleteProject(
     DeleteProject event,
     Emitter<HomeState> emit,
@@ -224,7 +215,6 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     }
   }
 
-  /// Load project summary
   Future<void> _loadProjectSummary(
     LoadProjectSummary event,
     Emitter<HomeState> emit,
@@ -242,7 +232,6 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     }
   }
 
-  /// Update user name
   Future<void> _updateUserName(
     UpdateUserName event,
     Emitter<HomeState> emit,
