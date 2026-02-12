@@ -145,4 +145,17 @@ class HomeApiService {
       throw Exception(response.data['message']);
     }
   }
+
+  /// GET MATERIAL HISTORY
+  Future<List<dynamic>> getMaterialHistory(String materialId) async {
+    final response = await _dio.get(
+      "${ApiConstants.getMaterialHistory}/$materialId",
+    );
+
+    if (response.data['status'] == true) {
+      return response.data['data'] ?? [];
+    } else {
+      throw Exception("Failed to fetch material history");
+    }
+  }
 }

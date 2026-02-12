@@ -194,3 +194,12 @@ class DeleteMaterial extends HomeEvent {
   @override
   List<Object?> get props => [materialId, projectId];
 }
+
+class LoadMaterialHistory extends HomeEvent {
+  final String materialId;
+
+  const LoadMaterialHistory(this.materialId);
+
+  @override
+  List<Object?> get props => [materialId];
+}

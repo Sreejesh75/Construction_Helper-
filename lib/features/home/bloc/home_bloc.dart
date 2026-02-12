@@ -19,6 +19,7 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     on<AddMaterial>(_addMaterial);
     on<UpdateMaterial>(_updateMaterial);
     on<DeleteMaterial>(_deleteMaterial);
+    on<LoadMaterialHistory>(_loadMaterialHistory);
     on<LogoutEvent>(_logout);
   }
 
@@ -95,17 +96,11 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
       add(LoadMaterials(event.projectId));
       add(LoadProjectSummary(event.projectId));
 
-      emit(
-        state.copyWith(
-          isLoadingMaterials: false,
-          updateMessage: remark, 
-        ),
-      );
+      emit(state.copyWith(isLoadingMaterials: false, updateMessage: remark));
     } catch (e) {
       emit(state.copyWith(isLoadingMaterials: false, error: e.toString()));
     }
   }
-
 
   Future<void> _deleteMaterial(
     DeleteMaterial event,
@@ -116,7 +111,6 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     try {
       await api.deleteMaterial(event.materialId);
 
-  
       add(LoadMaterials(event.projectId));
       add(LoadProjectSummary(event.projectId));
     } catch (e) {
@@ -124,11 +118,24 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     }
   }
 
+  Future<void> _loadMaterialHistory(
+    LoadMaterialHistory event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(state.copyWith(isLoadingHistory: true, error: null));
+
+    try {
+      final history = await api.getMaterialHistory(event.materialId);
+      emit(state.copyWith(isLoadingHistory: false, materialHistory: history));
+    } catch (e) {
+      emit(state.copyWith(isLoadingHistory: false, error: e.toString()));
+    }
+  }
+
   Future<void> _loadProjects(
     LoadProjects event,
     Emitter<HomeState> emit,
   ) async {
-
     final shouldUpdateName =
         state.userId != event.userId || state.userName == null;
     final currentUserName = shouldUpdateName ? event.userName : state.userName;

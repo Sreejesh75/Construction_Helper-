@@ -3,6 +3,7 @@ import 'package:construction_app/core/theme/app_color.dart';
 import 'package:construction_app/features/home/presentation/widgets/dashboard_stats.dart';
 import 'package:construction_app/features/home/presentation/widgets/category_filter_bar.dart';
 import 'package:construction_app/features/home/presentation/widgets/material_list.dart';
+import 'package:construction_app/features/home/presentation/widgets/material_history_sheet.dart'; // Added
 
 import 'package:flutter/material.dart';
 
@@ -291,6 +292,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       projectId: widget.projectId!,
                                     ),
                                   ),
+                                  onHistory: (m) =>
+                                      _showMaterialHistory(context, m),
                                 ),
                               ] else
                                 Container(
@@ -389,5 +392,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
         );
       }
     }
+  }
+
+  Future<void> _showMaterialHistory(
+    BuildContext context,
+    Map<String, dynamic> material,
+  ) async {
+    // Load history
+    context.read<HomeBloc>().add(LoadMaterialHistory(material['_id']));
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => BlocBuilder<HomeBloc, HomeState>(
+        builder: (context, state) {
+          return MaterialHistorySheet(
+            material: material,
+            history: state.materialHistory,
+            isLoading: state.isLoadingHistory,
+          );
+        },
+      ),
+    );
   }
 }
