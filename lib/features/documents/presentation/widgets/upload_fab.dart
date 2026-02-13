@@ -17,7 +17,10 @@ class UploadFab extends StatelessWidget {
       listener: (context, state) {
         if (state.uploadSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Document uploaded successfully")),
+            const SnackBar(
+              content: Text("Document uploaded successfully"),
+              backgroundColor: Colors.green,
+            ),
           );
         }
       },

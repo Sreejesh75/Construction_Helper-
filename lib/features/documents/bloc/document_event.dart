@@ -21,15 +21,17 @@ class UploadDocument extends DocumentEvent {
   final String projectId;
   final File file;
   final String category;
+  final String? customName;
 
   const UploadDocument({
     required this.projectId,
     required this.file,
     required this.category,
+    this.customName,
   });
 
   @override
-  List<Object?> get props => [projectId, file, category];
+  List<Object?> get props => [projectId, file, category, customName];
 }
 
 class DeleteDocument extends DocumentEvent {

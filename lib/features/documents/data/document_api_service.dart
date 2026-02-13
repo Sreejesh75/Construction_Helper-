@@ -27,9 +27,12 @@ class DocumentApiService {
     required String projectId,
     required File file,
     required String category,
+    String? customName,
   }) async {
     try {
-      String fileName = file.path.split('/').last;
+      String fileName = customName != null && customName.isNotEmpty
+          ? customName
+          : file.path.split('/').last;
 
       // Determine mime type (basic check, can be expanded)
       String? mimeType;

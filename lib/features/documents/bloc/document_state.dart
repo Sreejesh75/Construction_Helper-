@@ -5,12 +5,14 @@ class DocumentState extends Equatable {
   final List<Map<String, dynamic>> documents;
   final String? error;
   final bool uploadSuccess;
+  final bool deleteSuccess;
 
   const DocumentState({
     this.isLoading = false,
     this.documents = const [],
     this.error,
     this.uploadSuccess = false,
+    this.deleteSuccess = false,
   });
 
   DocumentState copyWith({
@@ -18,15 +20,23 @@ class DocumentState extends Equatable {
     List<Map<String, dynamic>>? documents,
     String? error,
     bool? uploadSuccess,
+    bool? deleteSuccess,
   }) {
     return DocumentState(
       isLoading: isLoading ?? this.isLoading,
       documents: documents ?? this.documents,
-      error: error, 
+      error: error,
       uploadSuccess: uploadSuccess ?? this.uploadSuccess,
+      deleteSuccess: deleteSuccess ?? this.deleteSuccess,
     );
   }
 
   @override
-  List<Object?> get props => [isLoading, documents, error, uploadSuccess];
+  List<Object?> get props => [
+    isLoading,
+    documents,
+    error,
+    uploadSuccess,
+    deleteSuccess,
+  ];
 }

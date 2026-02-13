@@ -4,6 +4,7 @@ import '../../../../core/theme/app_color.dart';
 import '../data/document_api_service.dart';
 import '../bloc/document_bloc.dart';
 import '../bloc/document_event.dart';
+import '../bloc/document_state.dart';
 import 'widgets/document_list.dart';
 import 'widgets/upload_fab.dart';
 
@@ -23,17 +24,31 @@ class ProjectDocumentsScreen extends StatelessWidget {
       create: (context) =>
           DocumentBloc(DocumentApiService())
             ..add(LoadProjectDocuments(projectId)),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "Documents - $projectName",
-            style: const TextStyle(fontSize: 18, color: Colors.white),
+      child: BlocListener<DocumentBloc, DocumentState>(
+        listenWhen: (previous, current) =>
+            previous.deleteSuccess != current.deleteSuccess,
+        listener: (context, state) {
+          if (state.deleteSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Document deleted successfully'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(
+              "Documents - $projectName",
+              style: const TextStyle(fontSize: 18, color: Colors.white),
+            ),
+            backgroundColor: AppColors.primary,
+            iconTheme: const IconThemeData(color: Colors.white),
           ),
-          backgroundColor: AppColors.primary,
-          iconTheme: const IconThemeData(color: Colors.white),
+          body: DocumentList(projectId: projectId),
+          floatingActionButton: UploadFab(projectId: projectId),
         ),
-        body: const DocumentList(),
-        floatingActionButton: UploadFab(projectId: projectId),
       ),
     );
   }

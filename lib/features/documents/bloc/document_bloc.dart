@@ -29,12 +29,20 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     UploadDocument event,
     Emitter<DocumentState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true, error: null, uploadSuccess: false));
+    emit(
+      state.copyWith(
+        isLoading: true,
+        error: null,
+        uploadSuccess: false,
+        deleteSuccess: false,
+      ),
+    );
     try {
       await _documentApiService.uploadDocument(
         projectId: event.projectId,
         file: event.file,
         category: event.category,
+        customName: event.customName,
       );
 
       // Refresh list
@@ -55,10 +63,17 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     DeleteDocument event,
     Emitter<DocumentState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true, error: null));
+    emit(state.copyWith(isLoading: true, error: null, deleteSuccess: false));
     try {
       await _documentApiService.deleteDocument(event.documentId);
-      add(LoadProjectDocuments(event.projectId)); // Refresh list
+      final documents = await _documentApiService.getDocuments(event.projectId);
+      emit(
+        state.copyWith(
+          isLoading: false,
+          documents: documents,
+          deleteSuccess: true,
+        ),
+      );
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }

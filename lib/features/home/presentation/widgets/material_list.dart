@@ -125,23 +125,11 @@ class MaterialList extends StatelessWidget {
                     onSelected: (value) {
                       if (value == 'edit') {
                         onEdit(material);
-                      } else if (value == 'history') {
-                        onHistory?.call(material);
                       } else if (value == 'delete') {
                         onDelete(material);
                       }
                     },
                     itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'history',
-                        child: Row(
-                          children: [
-                            Icon(Icons.history, size: 18, color: Colors.blue),
-                            SizedBox(width: 8),
-                            Text('History'),
-                          ],
-                        ),
-                      ),
                       const PopupMenuItem(value: 'edit', child: Text('Edit')),
                       const PopupMenuItem(
                         value: 'delete',

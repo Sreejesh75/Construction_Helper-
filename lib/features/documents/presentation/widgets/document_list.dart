@@ -5,7 +5,8 @@ import '../../bloc/document_state.dart';
 import 'document_tile.dart';
 
 class DocumentList extends StatelessWidget {
-  const DocumentList({super.key});
+  final String projectId;
+  const DocumentList({super.key, required this.projectId});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +44,7 @@ class DocumentList extends StatelessWidget {
             separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final doc = state.documents[index];
-              return DocumentTile(document: doc);
+              return DocumentTile(document: doc, projectId: projectId);
             },
           ),
         );

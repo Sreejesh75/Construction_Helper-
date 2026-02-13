@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -23,6 +24,7 @@ class DocumentUploadDialog extends StatefulWidget {
 
 class _DocumentUploadDialogState extends State<DocumentUploadDialog> {
   File? _selectedFile;
+  final TextEditingController _nameController = TextEditingController();
   String _selectedCategory = "Invoice";
   final List<String> _categories = [
     "Invoice",
@@ -40,6 +42,7 @@ class _DocumentUploadDialogState extends State<DocumentUploadDialog> {
     if (result != null && result.files.single.path != null) {
       setState(() {
         _selectedFile = File(result.files.single.path!);
+        _nameController.text = result.files.single.name;
       });
     }
   }
@@ -74,11 +77,26 @@ class _DocumentUploadDialogState extends State<DocumentUploadDialog> {
       if (result.images != null && result.images!.isNotEmpty) {
         setState(() {
           _selectedFile = File(result.images!.first);
+          _nameController.text =
+              "Scanned Receipt ${DateTime.now().toIso8601String()}";
           _selectedCategory = "Receipt"; // Auto-select Receipt
         });
       }
     } catch (e) {
       debugPrint("Error scanning document: $e");
+    }
+  }
+
+  Future<void> _takePhoto() async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.camera);
+
+    if (image != null) {
+      setState(() {
+        _selectedFile = File(image.path);
+        _nameController.text = "Photo ${DateTime.now().toIso8601String()}";
+        // Auto-select based on common camera usage, or leave default
+      });
     }
   }
 
@@ -99,6 +117,7 @@ class _DocumentUploadDialogState extends State<DocumentUploadDialog> {
                 onTap: () {
                   // Allow re-selection
                   setState(() => _selectedFile = null);
+                  _nameController.clear();
                 },
                 borderRadius: BorderRadius.circular(8),
                 child: Container(
@@ -129,6 +148,18 @@ class _DocumentUploadDialogState extends State<DocumentUploadDialog> {
                         "Tap to change",
                         style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(
+                          labelText: "File Name",
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -154,6 +185,18 @@ class _DocumentUploadDialogState extends State<DocumentUploadDialog> {
                 ),
               ],
             ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildSelectionButton(
+                  icon: Icons.camera_alt,
+                  label: "Take Photo",
+                  onTap: _takePhoto,
+                ),
+              ),
+            ],
+          ),
 
           const SizedBox(height: 16),
           // Category Dropdown
@@ -192,6 +235,7 @@ class _DocumentUploadDialogState extends State<DocumentUploadDialog> {
                       projectId: widget.projectId,
                       file: _selectedFile!,
                       category: _selectedCategory,
+                      customName: _nameController.text.trim(),
                     ),
                   );
                   Navigator.pop(context);
