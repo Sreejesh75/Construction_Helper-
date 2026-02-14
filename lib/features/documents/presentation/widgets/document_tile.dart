@@ -18,9 +18,10 @@ class DocumentTile extends StatelessWidget {
 
   Future<void> _openDocument(BuildContext context) async {
     try {
-      final String? path = document['path'] ?? document['url'];
+      final String? path =
+          document['fileUrl'] ?? document['path'] ?? document['url'];
       if (path != null && path.isNotEmpty) {
-        // Construct full URL if it's a relative path
+        // Construct full URL if it's a relative path (Cloudinary URLs are absolute)
         final uri = Uri.parse(
           path.startsWith('http') ? path : '${ApiConstants.baseUrl}/$path',
         );
@@ -65,7 +66,7 @@ class DocumentTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final fileName = document['originalName'] ?? 'Unknown File';
     final category = document['category'] ?? 'Uncategorized';
-    final uploadedAt = document['createdAt'] ?? '';
+    final uploadedAt = document['uploadDate'] ?? document['createdAt'] ?? '';
 
     return Container(
       decoration: BoxDecoration(
@@ -103,22 +104,33 @@ class DocumentTile extends StatelessWidget {
               const SizedBox(height: 4),
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        category,
+                        style: const TextStyle(fontSize: 10),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(category, style: const TextStyle(fontSize: 10)),
                   ),
                   if (uploadedAt.isNotEmpty) ...[
                     const SizedBox(width: 8),
-                    Text(
-                      uploadedAt, // Consider formatting date if string is ISO
-                      style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+                    Flexible(
+                      child: Text(
+                        uploadedAt,
+                        style: TextStyle(fontSize: 10, color: Colors.grey[500]),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ],
