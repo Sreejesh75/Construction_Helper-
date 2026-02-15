@@ -60,6 +60,11 @@ class _AddProgressSheetState extends State<AddProgressSheet> {
     _remarksController = TextEditingController(
       text: widget.existingProgress?.remarks ?? '',
     );
+
+    // Initial sync if adding new
+    if (widget.existingProgress == null) {
+      _updateValues(_status);
+    }
   }
 
   @override
@@ -70,6 +75,37 @@ class _AddProgressSheetState extends State<AddProgressSheet> {
     super.dispose();
   }
 
+  void _updateValues(String status) {
+    setState(() {
+      _status = status;
+      if (status == 'Start') {
+        _progress = 0;
+        if (_startDateController.text.isEmpty) {
+          _startDateController.text = _formatDate(DateTime.now());
+        }
+      } else if (status == 'In Progress') {
+        _progress = 50;
+        // Keep existing start date or set if empty
+        if (_startDateController.text.isEmpty) {
+          _startDateController.text = _formatDate(DateTime.now());
+        }
+      } else if (status == 'Completed') {
+        _progress = 100;
+        if (_endDateController.text.isEmpty) {
+          _endDateController.text = _formatDate(DateTime.now());
+        }
+        // Ensure start date is set if jumped straight to completed
+        if (_startDateController.text.isEmpty) {
+          _startDateController.text = _formatDate(DateTime.now());
+        }
+      }
+    });
+  }
+
+  String _formatDate(DateTime date) {
+    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+  }
+
   Future<void> _selectDate(TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -78,10 +114,8 @@ class _AddProgressSheetState extends State<AddProgressSheet> {
       lastDate: DateTime(2030),
     );
     if (picked != null) {
-      final formatted =
-          "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
       setState(() {
-        controller.text = formatted;
+        controller.text = _formatDate(picked);
       });
     }
   }
@@ -229,28 +263,48 @@ class _AddProgressSheetState extends State<AddProgressSheet> {
                     .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                     .toList(),
                 onChanged: (val) {
-                  if (val != null) setState(() => _status = val);
+                  if (val != null) _updateValues(val);
                 },
               ),
               const SizedBox(height: 16),
 
-              // Progress Slider
-              Text(
-                "Progress: ${_progress.toInt()}%",
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              Slider(
-                value: _progress,
-                min: 0,
-                max: 100,
-                divisions: 100,
-                label: _progress.round().toString(),
-                activeColor: AppColors.primary,
-                onChanged: (double value) {
-                  setState(() {
-                    _progress = value;
-                  });
-                },
+              // Progress Indicator (Read-only)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[200]!),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      "Progress",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        "${_progress.toInt()}%",
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
 
@@ -281,7 +335,7 @@ class _AddProgressSheetState extends State<AddProgressSheet> {
                       ),
                       readOnly: true,
                       onTap: () => _selectDate(_endDateController),
-                      validator: (val) => val!.isEmpty ? 'Required' : null,
+                      // End date is optional until completed, but let's keep it flexible
                     ),
                   ),
                 ],

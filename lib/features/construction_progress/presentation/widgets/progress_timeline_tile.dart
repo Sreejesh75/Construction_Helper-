@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/theme/app_color.dart';
 import '../../data/models/construction_progress_model.dart';
 import '../widgets/add_progress_sheet.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,8 +17,18 @@ class ProgressTimelineTile extends StatelessWidget {
     final isInProgress = progress.status == 'In Progress';
 
     Color statusColor = Colors.grey;
-    if (isCompleted) statusColor = Colors.green;
-    if (isInProgress) statusColor = Colors.blue;
+    IconData statusIcon = Icons.circle_outlined;
+
+    if (isCompleted) {
+      statusColor = Colors.green;
+      statusIcon = Icons.check_circle;
+    } else if (isInProgress) {
+      statusColor = AppColors.primary;
+      statusIcon = Icons.timelapse;
+    } else {
+      statusColor = Colors.orange;
+      statusIcon = Icons.start;
+    }
 
     return InkWell(
       onTap: () {
@@ -34,46 +45,40 @@ class ProgressTimelineTile extends StatelessWidget {
         );
       },
       child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.withOpacity(0.1)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
           children: [
-            // Status Indicator (Left)
-            Container(
-              margin: const EdgeInsets.only(top: 4),
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: statusColor,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: statusColor.withOpacity(0.3),
-                    blurRadius: 6,
-                    spreadRadius: 2,
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16),
-            // Content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Icon(
+                    _getSectionIcon(progress.section),
+                    color: statusColor,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         progress.section,
@@ -83,79 +88,161 @@ class ProgressTimelineTile extends StatelessWidget {
                           color: Colors.black87,
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: statusColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          "${progress.progress}%",
-                          style: TextStyle(
-                            color: statusColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(statusIcon, size: 14, color: statusColor),
+                          const SizedBox(width: 4),
+                          Text(
+                            progress.status,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: statusColor,
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  // Progress Bar
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: progress.progress / 100,
-                      backgroundColor: Colors.grey[100],
-                      valueColor: AlwaysStoppedAnimation<Color>(statusColor),
-                      minHeight: 6,
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    "${progress.progress}%",
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  // Dates & Remarks
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_today,
-                        size: 12,
-                        color: Colors.grey[400],
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          "${_formatDate(progress.startDate)} - ${_formatDate(progress.endDate)}",
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey[500],
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                    ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: progress.progress / 100,
+                backgroundColor: Colors.grey[100],
+                valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+                minHeight: 8,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (progress.startDate.isNotEmpty)
+                  _DateBadge(
+                    label: "Start",
+                    date: progress.startDate,
+                    color: Colors.blueGrey,
                   ),
-                  if (progress.remarks.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
+                if (progress.endDate.isNotEmpty)
+                  _DateBadge(
+                    label: "End",
+                    date: progress.endDate,
+                    color: isCompleted ? Colors.green : Colors.grey,
+                  ),
+              ],
+            ),
+            if (progress.remarks.isNotEmpty) ...[
+              const Divider(height: 24),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.chat_bubble_outline,
+                    size: 14,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
                       progress.remarks,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 13,
                         color: Colors.grey[600],
                         fontStyle: FontStyle.italic,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                  ],
+                  ),
                 ],
               ),
-            ),
+            ],
           ],
         ),
       ),
+    );
+  }
+
+  IconData _getSectionIcon(String section) {
+    switch (section) {
+      case 'Foundation':
+        return Icons.foundation;
+      case 'Structure':
+        return Icons
+            .apartment; // Material Design doesn't have structure, apartment is close
+      case 'Brickwork':
+        return Icons.grid_view;
+      case 'Plastering':
+        return Icons.format_paint;
+      case 'Flooring':
+        return Icons.layers;
+      case 'Plumbing':
+        return Icons.plumbing;
+      case 'Electrical':
+        return Icons.electrical_services;
+      case 'Painting':
+        return Icons.format_color_fill;
+      case 'Finishing':
+        return Icons.check_circle_outline;
+      default:
+        return Icons.construction;
+    }
+  }
+}
+
+class _DateBadge extends StatelessWidget {
+  final String label;
+  final String date;
+  final Color color;
+
+  const _DateBadge({
+    required this.label,
+    required this.date,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(
+          "$label: ",
+          style: TextStyle(
+            fontSize: 11,
+            color: Colors.grey[500],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Text(
+          _formatDate(date),
+          style: TextStyle(
+            fontSize: 12,
+            color: color,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 
