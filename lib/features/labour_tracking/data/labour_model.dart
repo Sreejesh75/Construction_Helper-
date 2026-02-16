@@ -55,9 +55,9 @@ class ContractDetails {
 
   factory ContractDetails.fromJson(Map<String, dynamic> json) {
     return ContractDetails(
-      contractorName: json['contractorName'],
-      estimatedAmount: (json['estimatedAmount'] as num).toDouble(),
-      paidAmount: (json['paidAmount'] as num).toDouble(),
+      contractorName: json['contractorName'] ?? '',
+      estimatedAmount: (json['estimatedAmount'] as num?)?.toDouble() ?? 0.0,
+      paidAmount: (json['paidAmount'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
@@ -78,10 +78,12 @@ class DailyLabourDetails {
 
   factory DailyLabourDetails.fromJson(Map<String, dynamic> json) {
     return DailyLabourDetails(
-      labourers: (json['labourers'] as List)
-          .map((e) => Labourer.fromJson(e))
-          .toList(),
-      totalAmount: (json['totalAmount'] as num).toDouble(),
+      labourers:
+          (json['labourers'] as List?)
+              ?.map((e) => Labourer.fromJson(e))
+              .toList() ??
+          [],
+      totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
@@ -100,7 +102,10 @@ class Labourer {
   Labourer({required this.name, required this.wage});
 
   factory Labourer.fromJson(Map<String, dynamic> json) {
-    return Labourer(name: json['name'], wage: (json['wage'] as num).toDouble());
+    return Labourer(
+      name: json['name'] ?? '',
+      wage: (json['wage'] as num?)?.toDouble() ?? 0.0,
+    );
   }
 
   Map<String, dynamic> toJson() {
