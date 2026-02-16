@@ -33,4 +33,8 @@ class ApiConstants {
   static const String addProgress = "/api/progress/add";
   static const String getProgress = "/api/progress";
   static const String updateProgress = "/api/progress/update";
+
+  // Labour APIs
+  static const String addLabour = "/api/labour/add";
+  static const String getLabour = "/api/labour/project";
 }

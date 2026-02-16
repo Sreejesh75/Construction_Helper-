@@ -10,7 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:construction_app/features/home/bloc/home_bloc.dart';
 import 'package:construction_app/features/home/bloc/home_event.dart';
 import 'package:construction_app/features/home/bloc/home_state.dart';
+import 'package:construction_app/features/home/bloc/home_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:construction_app/features/labour_tracking/presentation/screens/labour_screen.dart'; // Added
 
 class DashboardScreen extends StatefulWidget {
   final String userName;
@@ -271,6 +273,87 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   },
                                 ),
                                 const SizedBox(height: 16),
+                                // Labour Tracking Entry Point
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => LabourScreen(
+                                            projectId: widget.projectId!,
+                                            projectName:
+                                                summary?['projectName'] ??
+                                                'Project',
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: Colors.orange.withOpacity(0.3),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.all(
+                                                  8,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.engineering,
+                                                  color: Colors.orange,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "Labour Tracking",
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16,
+                                                      color: Colors.orange[800],
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    "Manage contracts & daily wages",
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.orange[600],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          const Icon(
+                                            Icons.arrow_forward_ios,
+                                            size: 16,
+                                            color: Colors.orange,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
                                 MaterialList(
                                   materials: state.materials.where((m) {
                                     if (_selectedCategory == "All") {
