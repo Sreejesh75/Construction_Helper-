@@ -5,7 +5,7 @@ abstract class LabourState extends Equatable {
   const LabourState();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class LabourInitial extends LabourState {}
@@ -14,20 +14,26 @@ class LabourLoading extends LabourState {}
 
 class LabourLoaded extends LabourState {
   final List<Labour> records;
+  final List<Labour> filteredRecords;
+  final DateTime? selectedDate;
   final double totalContractPaid;
   final double totalContractEstimated;
   final double totalDailyWage;
 
   const LabourLoaded({
     required this.records,
+    List<Labour>? filteredRecords,
+    this.selectedDate,
     required this.totalContractPaid,
     required this.totalContractEstimated,
     required this.totalDailyWage,
-  });
+  }) : filteredRecords = filteredRecords ?? records;
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
     records,
+    filteredRecords,
+    selectedDate,
     totalContractPaid,
     totalContractEstimated,
     totalDailyWage,

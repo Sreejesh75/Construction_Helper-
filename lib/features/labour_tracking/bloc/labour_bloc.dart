@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../data/labour_api_service.dart';
+import '../data/labour_model.dart';
 import 'labour_event.dart';
 import 'labour_state.dart';
 
@@ -9,6 +10,7 @@ class LabourBloc extends Bloc<LabourEvent, LabourState> {
   LabourBloc(this._apiService) : super(LabourInitial()) {
     on<LoadLabourRecords>(_onLoadLabourRecords);
     on<AddLabourRecord>(_onAddLabourRecord);
+    on<FilterLabourByDate>(_onFilterLabourByDate);
   }
 
   Future<void> _onLoadLabourRecords(
@@ -69,6 +71,7 @@ class LabourBloc extends Bloc<LabourEvent, LabourState> {
       emit(
         LabourLoaded(
           records: records,
+          filteredRecords: records,
           totalContractPaid: totalContractPaid,
           totalContractEstimated: totalContractEstimated,
           totalDailyWage: totalDailyWage,
@@ -77,6 +80,41 @@ class LabourBloc extends Bloc<LabourEvent, LabourState> {
     } catch (e) {
       emit(LabourError(e.toString()));
     }
+  }
+
+  void _onFilterLabourByDate(
+    FilterLabourByDate event,
+    Emitter<LabourState> emit,
+  ) {
+    if (state is LabourLoaded) {
+      final currentState = state as LabourLoaded;
+      List<Labour> filtered;
+
+      if (event.date == null) {
+        filtered = currentState.records;
+      } else {
+        filtered = currentState.records.where((record) {
+          return isSameDay(record.date, event.date!);
+        }).toList();
+      }
+
+      emit(
+        LabourLoaded(
+          records: currentState.records,
+          filteredRecords: filtered,
+          selectedDate: event.date,
+          totalContractPaid: currentState.totalContractPaid,
+          totalContractEstimated: currentState.totalContractEstimated,
+          totalDailyWage: currentState.totalDailyWage,
+        ),
+      );
+    }
+  }
+
+  bool isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 
   Future<void> _onAddLabourRecord(

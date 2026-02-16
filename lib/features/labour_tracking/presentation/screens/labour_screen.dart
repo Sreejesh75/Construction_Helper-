@@ -76,22 +76,74 @@ class LabourScreen extends StatelessWidget {
                     const SizedBox(height: 24),
 
                     // List Header
-                    const Text(
-                      "History",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "History",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: () async {
+                            final pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: state.selectedDate ?? DateTime.now(),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                            );
+                            if (pickedDate != null) {
+                              context.read<LabourBloc>().add(
+                                FilterLabourByDate(pickedDate),
+                              );
+                            } else if (state.selectedDate != null) {
+                              // Optional: If user cancels, do we clear?
+                              // Usually no, but we might want a "Clear" option.
+                              // Let's look at the UI. A separate clear button might be needed if date is selected.
+                            }
+                          },
+                          icon: Icon(
+                            Icons.calendar_today,
+                            size: 18,
+                            color: state.selectedDate != null
+                                ? AppColors.primary
+                                : Colors.grey,
+                          ),
+                          label: Text(
+                            state.selectedDate != null
+                                ? "${state.selectedDate!.day}/${state.selectedDate!.month}/${state.selectedDate!.year}"
+                                : "Filter Date",
+                            style: TextStyle(
+                              color: state.selectedDate != null
+                                  ? AppColors.primary
+                                  : Colors.grey,
+                            ),
+                          ),
+                        ),
+                        if (state.selectedDate != null)
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.red),
+                            onPressed: () {
+                              context.read<LabourBloc>().add(
+                                const FilterLabourByDate(null),
+                              );
+                            },
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 12),
 
-                    if (state.records.isEmpty)
+                    if (state.filteredRecords.isEmpty)
                       Center(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 40),
                           child: Text(
-                            "No labour records found",
+                            state.selectedDate != null
+                                ? "No records found for this date"
+                                : "No labour records found",
                             style: TextStyle(color: Colors.grey[500]),
                           ),
                         ),
@@ -100,9 +152,11 @@ class LabourScreen extends StatelessWidget {
                       ListView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
-                        itemCount: state.records.length,
+                        itemCount: state.filteredRecords.length,
                         itemBuilder: (context, index) {
-                          return LabourListItem(labour: state.records[index]);
+                          return LabourListItem(
+                            labour: state.filteredRecords[index],
+                          );
                         },
                       ),
                   ],

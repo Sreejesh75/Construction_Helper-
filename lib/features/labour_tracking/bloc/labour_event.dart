@@ -5,7 +5,7 @@ abstract class LabourEvent extends Equatable {
   const LabourEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class LoadLabourRecords extends LabourEvent {
@@ -24,4 +24,13 @@ class AddLabourRecord extends LabourEvent {
 
   @override
   List<Object> get props => [labour];
+}
+
+class FilterLabourByDate extends LabourEvent {
+  final DateTime? date;
+
+  const FilterLabourByDate(this.date);
+
+  @override
+  List<Object?> get props => [date];
 }
