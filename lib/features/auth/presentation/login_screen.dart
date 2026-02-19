@@ -1,5 +1,6 @@
 import 'package:construction_app/core/theme/app_color.dart';
 import 'package:construction_app/features/auth/bloc/login_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:construction_app/features/auth/bloc/login_event.dart';
 import 'package:construction_app/features/auth/bloc/login_state.dart';
 import 'package:construction_app/features/auth/data/auth_api_service.dart';
@@ -7,6 +8,7 @@ import 'package:construction_app/features/home/presentation/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:construction_app/features/about/presentation/about_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -227,16 +229,77 @@ class _LoginView extends StatelessWidget {
                             ),
                           ),
 
+                          const SizedBox(height: 16),
+
+                          // Google Sign In Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 54,
+                            child: ElevatedButton(
+                              onPressed: state.isLoading
+                                  ? null
+                                  : () {
+                                      context.read<LoginBloc>().add(
+                                        GoogleLoginRequested(),
+                                      );
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black87,
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(color: Colors.grey[200]!),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // We can use an asset or a network image for the Google logo
+                                  // Assuming we might not have a local asset, we'll try to use a local one if available,
+                                  // or just text if not. But user asked for matching UI.
+                                  // I will assume a standard Google G icon is available or I should use an Icon.
+                                  // Since I don't see a google icon asset in the file list, I'll use text or FontAwesome if available.
+                                  // checking pubspec, font_awesome_flutter is there.
+                                  // However, pure Google logo is usually preferred.
+                                  // I'll try to use an Image.asset if I had one, but I'll use a generic icon or text for now
+                                  // and ask user to provide the asset if needed, or use FontAwesome.
+                                  // pubspec has 'font_awesome_flutter: ^10.12.0'.
+                                  // Let's use FontAwesomeIcons.google.
+                                  FaIcon(
+                                    FontAwesomeIcons.google,
+                                    size: 24,
+                                    color: Colors.red,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  const Text(
+                                    "Sign in with Google",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
                           const SizedBox(height: 24),
 
                           // Footer
                           Center(
                             child: TextButton(
                               onPressed: () {
-                                
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const AboutScreen(),
+                                  ),
+                                );
                               },
                               child: Text(
-                                "Want to know more about the app and?",
+                                "Want to know more about the app ?",
                                 style: TextStyle(
                                   color: AppColors.primary.withOpacity(0.8),
                                   fontWeight: FontWeight.w600,

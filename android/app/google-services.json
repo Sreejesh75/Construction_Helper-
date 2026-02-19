@@ -12,7 +12,20 @@
           "package_name": "com.example.construction_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "549281312315-6mmu8rs40i3aoqb1667gg5gf7ckdct1o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.construction_app",
+            "certificate_hash": "ee97e8172dd58bed9f2ccd003b62326394ec8a4a"
+          }
+        },
+        {
+          "client_id": "549281312315-kulke0e9bev4va46mppugkjuva5cg80i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCzJDtfxNK02ateqTRf2b-ym0jywvvYQkY"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "549281312315-kulke0e9bev4va46mppugkjuva5cg80i.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "549281312315-vi4b9d1ubfgoi1j8sgjdar938kkuqv13.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.constructionApp"
+              }
+            }
+          ]
         }
       }
     }

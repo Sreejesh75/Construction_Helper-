@@ -19,3 +19,6 @@ class LoginEmailChanged extends LoginEvent {
 
 /// Triggered when user presses Sign In
 class LoginSubmitted extends LoginEvent {}
+
+/// Triggered when user presses Google Sign In
+class GoogleLoginRequested extends LoginEvent {}
