@@ -19,6 +19,7 @@ class ApiConstants {
   static const String getMaterials = "/api/materials";
   static const String updateMaterial = "/api/update-material";
   static const String deleteMaterial = "/api/delete-material";
+  static const String logUsage = "/api/log-usage";
   static const String getMaterialHistory = "/api/material-history";
 
   // Summary API

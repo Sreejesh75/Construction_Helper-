@@ -195,6 +195,23 @@ class DeleteMaterial extends HomeEvent {
   List<Object?> get props => [materialId, projectId];
 }
 
+class LogMaterialUsage extends HomeEvent {
+  final String materialId;
+  final String projectId;
+  final double quantityUsed;
+  final String? remark;
+
+  const LogMaterialUsage({
+    required this.materialId,
+    required this.projectId,
+    required this.quantityUsed,
+    this.remark,
+  });
+
+  @override
+  List<Object?> get props => [materialId, projectId, quantityUsed, remark];
+}
+
 class LoadMaterialHistory extends HomeEvent {
   final String materialId;
 

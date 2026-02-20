@@ -4,6 +4,7 @@ import 'package:construction_app/features/home/presentation/widgets/dashboard_st
 import 'package:construction_app/features/home/presentation/widgets/category_filter_bar.dart';
 import 'package:construction_app/features/home/presentation/widgets/material_list.dart';
 import 'package:construction_app/features/home/presentation/widgets/material_history_sheet.dart'; // Added
+import 'package:construction_app/features/home/presentation/widgets/log_usage_dialog.dart';
 
 import 'package:flutter/material.dart';
 
@@ -377,6 +378,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   onHistory: (m) =>
                                       _showMaterialHistory(context, m),
+                                  onLogUsage: (m, _, __) =>
+                                      _showLogUsageDialog(context, m),
                                 ),
                               ] else
                                 Container(
@@ -494,6 +497,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
             material: material,
             history: state.materialHistory,
             isLoading: state.isLoadingHistory,
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _showLogUsageDialog(
+    BuildContext context,
+    Map<String, dynamic> material,
+  ) async {
+    showDialog(
+      context: context,
+      builder: (ctx) => LogUsageDialog(
+        material: material,
+        onLogUsage: (quantity, remark) {
+          context.read<HomeBloc>().add(
+            LogMaterialUsage(
+              materialId: material['_id'],
+              projectId: widget.projectId!,
+              quantityUsed: quantity,
+              remark: remark,
+            ),
           );
         },
       ),

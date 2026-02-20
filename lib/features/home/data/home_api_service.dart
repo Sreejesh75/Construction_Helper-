@@ -146,6 +146,27 @@ class HomeApiService {
     }
   }
 
+  /// LOG MATERIAL USAGE
+  Future<String?> logMaterialUsage({
+    required String materialId,
+    required double quantityUsed,
+    String? remark,
+  }) async {
+    final response = await _dio.put(
+      "${ApiConstants.logUsage}/$materialId",
+      data: {
+        "quantityUsed": quantityUsed,
+        if (remark != null) "remark": remark,
+      },
+    );
+
+    if (response.data['status'] != true) {
+      throw Exception(response.data['message']);
+    }
+
+    return response.data['material']?['lastUpdateRemark'] as String?;
+  }
+
   /// GET MATERIAL HISTORY
   Future<List<dynamic>> getMaterialHistory(String materialId) async {
     final response = await _dio.get(

@@ -19,6 +19,7 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
     on<AddMaterial>(_addMaterial);
     on<UpdateMaterial>(_updateMaterial);
     on<DeleteMaterial>(_deleteMaterial);
+    on<LogMaterialUsage>(_logMaterialUsage);
     on<LoadMaterialHistory>(_loadMaterialHistory);
     on<LogoutEvent>(_logout);
   }
@@ -113,6 +114,32 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
 
       add(LoadMaterials(event.projectId));
       add(LoadProjectSummary(event.projectId));
+    } catch (e) {
+      emit(state.copyWith(isLoadingMaterials: false, error: e.toString()));
+    }
+  }
+
+  Future<void> _logMaterialUsage(
+    LogMaterialUsage event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(state.copyWith(isLoadingMaterials: true, error: null));
+
+    try {
+      final remark = await api.logMaterialUsage(
+        materialId: event.materialId,
+        quantityUsed: event.quantityUsed,
+        remark: event.remark,
+      );
+
+      add(LoadMaterials(event.projectId));
+
+      emit(
+        state.copyWith(
+          isLoadingMaterials: false,
+          updateMessage: remark ?? "Material usage logged successfully",
+        ),
+      );
     } catch (e) {
       emit(state.copyWith(isLoadingMaterials: false, error: e.toString()));
     }
