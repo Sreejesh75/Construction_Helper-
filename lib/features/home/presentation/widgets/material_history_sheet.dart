@@ -121,13 +121,41 @@ class MaterialHistorySheet extends StatelessWidget {
                       // Assuming backend sorts it, but safe to render as is.
                       final item = history[index];
 
-                      // Parse values safely
-                      final price = (item['price'] ?? 0).toDouble();
-                      final qty = (item['quantity'] ?? 0).toDouble();
-                      final totalCost = (item['totalPrice'] ?? (price * qty))
+                      // Parse values safely based on backend schema
+                      final addedQty = (item['addedQuantity'] ?? 0).toDouble();
+                      final purchasePrice = (item['unitPriceAtPurchase'] ?? 0)
                           .toDouble();
+                      final explicitTotalCost = (item['totalPurchaseCost'] ?? 0)
+                          .toDouble();
+
+                      final newQty = (item['newQuantity'] ?? 0).toDouble();
+                      final prevQty = (item['previousQuantity'] ?? 0)
+                          .toDouble();
+                      final newPrice = (item['newPrice'] ?? 0).toDouble();
+
+                      // Determine what to show in the UI for quantity and price
+                      // Priority 1: Explicit 'Add Stock' properties
+                      // Priority 2: Inferred from 'Edit' logic
+                      final diffQty = (newQty - prevQty);
+                      final displayQty = addedQty > 0
+                          ? addedQty
+                          : diffQty.abs();
+                      final displayPrice = purchasePrice > 0
+                          ? purchasePrice
+                          : newPrice;
+
                       final unit = item['unit'] ?? material['unit'] ?? '';
                       final remark = item['remark'] as String?;
+
+                      // Did this transaction add value or just use material?
+                      final isUsage =
+                          remark != null &&
+                          remark.toLowerCase().contains('used');
+
+                      double displayTotal = explicitTotalCost;
+                      if (explicitTotalCost <= 0 && !isUsage && diffQty > 0) {
+                        displayTotal = displayQty * displayPrice;
+                      }
 
                       // Date parsing
                       DateTime date;
@@ -197,20 +225,21 @@ class MaterialHistorySheet extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text(
-                                      "₹${totalCost.toStringAsFixed(0)}",
+                                      "₹${displayTotal.toStringAsFixed(0)}",
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                         color: Colors.black87,
                                       ),
                                     ),
-                                    Text(
-                                      "${qty % 1 == 0 ? qty.toInt() : qty} $unit @ ₹$price",
-                                      style: TextStyle(
-                                        color: Colors.grey[500],
-                                        fontSize: 11,
+                                    if (displayQty > 0)
+                                      Text(
+                                        "${displayQty % 1 == 0 ? displayQty.toInt() : displayQty} $unit @ ₹$displayPrice",
+                                        style: TextStyle(
+                                          color: Colors.grey[500],
+                                          fontSize: 11,
+                                        ),
                                       ),
-                                    ),
                                   ],
                                 ),
                               ],
