@@ -30,21 +30,21 @@ class CreatorCard extends StatelessWidget {
       child: Column(
         children: [
           CircleAvatar(
-            radius: 40,
+            radius: 60,
             backgroundColor: Colors.white,
             child: CircleAvatar(
-              radius: 38,
+              radius: 56,
               backgroundColor: Colors.grey[200],
               backgroundImage: const AssetImage(
                 "assets/images/creator_placeholder.png",
               ), // Placeholder
               foregroundImage: const AssetImage(
-                "assets/images/sreejesh.png.jpg",
+                "assets/images/about_pic.jpeg",
               ), // Try to load sreejesh.jpg if exists, otherwise fallback
               onForegroundImageError: (exception, stackTrace) {
                 // Fallback handled by child
               },
-              child: const Icon(Icons.person, size: 40, color: Colors.grey),
+              child: const Icon(Icons.person, size: 60, color: Colors.grey),
             ),
           ),
           const SizedBox(height: 16),
