@@ -4,6 +4,8 @@ import 'package:construction_app/features/auth/bloc/login_bloc.dart';
 import 'package:construction_app/features/auth/data/auth_api_service.dart';
 import 'package:construction_app/features/home/bloc/home_bloc.dart';
 import 'package:construction_app/features/home/data/home_api_service.dart';
+import 'package:construction_app/features/equipment_tracking/bloc/equipment_bloc.dart';
+import 'package:construction_app/features/equipment_tracking/data/equipment_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
@@ -19,9 +21,7 @@ void main() async {
       (await getApplicationDocumentsDirectory()).path,
     ),
   );
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const ConstructionApp());
 }
 
@@ -35,6 +35,9 @@ class ConstructionApp extends StatelessWidget {
         BlocProvider<LoginBloc>(create: (_) => LoginBloc(AuthApiService())),
         BlocProvider<HomeBloc>(
           create: (_) => HomeBloc(HomeApiService(), AuthApiService()),
+        ),
+        BlocProvider<EquipmentBloc>(
+          create: (_) => EquipmentBloc(EquipmentApiService()),
         ),
       ],
       child: MaterialApp(
@@ -71,8 +74,6 @@ class ConstructionApp extends StatelessWidget {
             ),
           ),
         ),
-
-
 
         home: const SplashScreen(),
       ),

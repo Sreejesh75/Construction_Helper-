@@ -11,9 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:construction_app/features/home/bloc/home_bloc.dart';
 import 'package:construction_app/features/home/bloc/home_event.dart';
 import 'package:construction_app/features/home/bloc/home_state.dart';
-import 'package:construction_app/features/home/bloc/home_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:construction_app/features/labour_tracking/presentation/screens/labour_screen.dart'; // Added
+import 'package:construction_app/features/labour_tracking/presentation/screens/labour_screen.dart';
+import 'package:construction_app/features/equipment_tracking/presentation/screens/equipment_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String userName;
@@ -222,16 +222,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    isSingleProjectConfig
-                                        ? "Materials"
-                                        : "Analytics",
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
+                                  if (!isSingleProjectConfig)
+                                    Text(
+                                      "Analytics",
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
                                     ),
-                                  ),
                                   if (!isSingleProjectConfig)
                                     Container(
                                       padding: const EdgeInsets.symmetric(
@@ -265,18 +264,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                               const SizedBox(height: 20),
                               if (isSingleProjectConfig) ...[
-                                CategoryFilterBar(
-                                  selectedCategory: _selectedCategory,
-                                  onCategorySelected: (category) {
-                                    setState(() {
-                                      _selectedCategory = category;
-                                    });
-                                  },
+                                // Management Section
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "Management",
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 12),
                                 // Labour Tracking Entry Point
                                 Padding(
-                                  padding: const EdgeInsets.only(bottom: 16),
+                                  padding: const EdgeInsets.only(bottom: 12),
                                   child: InkWell(
                                     onTap: () {
                                       Navigator.push(
@@ -294,10 +298,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     child: Container(
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
-                                        color: Colors.orange.withOpacity(0.1),
+                                        color: Colors.orange.withOpacity(0.08),
                                         borderRadius: BorderRadius.circular(16),
                                         border: Border.all(
-                                          color: Colors.orange.withOpacity(0.3),
+                                          color: Colors.orange.withOpacity(0.2),
                                         ),
                                       ),
                                       child: Row(
@@ -308,9 +312,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             children: [
                                               Container(
                                                 padding: const EdgeInsets.all(
-                                                  8,
+                                                  10,
                                                 ),
-                                                decoration: BoxDecoration(
+                                                decoration: const BoxDecoration(
                                                   color: Colors.white,
                                                   shape: BoxShape.circle,
                                                 ),
@@ -330,7 +334,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                     style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.bold,
-                                                      fontSize: 16,
+                                                      fontSize: 15,
                                                       color: Colors.orange[800],
                                                     ),
                                                   ),
@@ -355,6 +359,110 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                   ),
                                 ),
+                                // Equipment Tracking Entry Point
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 24),
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => EquipmentScreen(
+                                            projectId: widget.projectId!,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.withOpacity(0.08),
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: Colors.blue.withOpacity(0.2),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.all(
+                                                  10,
+                                                ),
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.white,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.precision_manufacturing,
+                                                  color: Colors.blue,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "Equipment & Machinery",
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 15,
+                                                      color: Colors.blue[800],
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    "Track rentals & fuel logs",
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.blue[600],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          const Icon(
+                                            Icons.arrow_forward_ios,
+                                            size: 16,
+                                            color: Colors.blue,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                Row(
+                                  children: [
+                                    Text(
+                                      isSingleProjectConfig
+                                          ? "Materials"
+                                          : "Analytics",
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                CategoryFilterBar(
+                                  selectedCategory: _selectedCategory,
+                                  onCategorySelected: (category) {
+                                    setState(() {
+                                      _selectedCategory = category;
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+
                                 MaterialList(
                                   materials: state.materials.where((m) {
                                     if (_selectedCategory == "All") {
@@ -413,7 +521,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           "No analytics data available",
                                           style: TextStyle(
                                             color: Colors.grey[400],
-                                            fontSize: 12,
                                           ),
                                         ),
                                       ),

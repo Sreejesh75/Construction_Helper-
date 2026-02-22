@@ -38,4 +38,13 @@ class ApiConstants {
   // Labour APIs
   static const String addLabour = "/api/labour/add";
   static const String getLabour = "/api/labour/project";
+
+  // Equipment APIs
+  static const String addEquipment = "/api/add-equipment";
+  static const String getEquipment = "/api/equipment";
+  static const String updateEquipment = "/api/update-equipment";
+  static const String deleteEquipment = "/api/delete-equipment";
+  static const String addEquipmentLog = "/api/add-equipment-log";
+  static const String getEquipmentLogs = "/api/equipment-logs";
+  static const String deleteEquipmentLog = "/api/delete-equipment-log";
 }
