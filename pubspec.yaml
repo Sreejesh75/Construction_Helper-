@@ -53,6 +53,8 @@ dependencies:
   firebase_auth: ^6.1.4
   google_sign_in: ^7.2.0
   font_awesome_flutter: ^10.12.0
+  pdf: ^3.11.3
+  printing: ^5.14.2
   
 
 dev_dependencies:

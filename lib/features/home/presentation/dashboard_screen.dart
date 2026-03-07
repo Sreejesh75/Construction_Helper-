@@ -5,6 +5,7 @@ import 'package:construction_app/features/home/presentation/widgets/category_fil
 import 'package:construction_app/features/home/presentation/widgets/material_list.dart';
 import 'package:construction_app/features/home/presentation/widgets/material_history_sheet.dart'; // Added
 import 'package:construction_app/features/home/presentation/widgets/log_usage_dialog.dart';
+import 'package:construction_app/core/utils/eod_report_service.dart';
 
 import 'package:flutter/material.dart';
 
@@ -131,6 +132,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               centerTitle: true,
+              actions: [
+                if (isSingleProjectConfig)
+                  Container(
+                    margin: const EdgeInsets.only(right: 8, top: 8, bottom: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.picture_as_pdf,
+                        color: Colors.white,
+                      ),
+                      tooltip: 'Daily EOD Report',
+                      onPressed: () async {
+                        try {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Generating EOD Report...'),
+                            ),
+                          );
+                          await EodReportService.generateAndShowEodReport(
+                            widget.projectId!,
+                            summary['projectName'] ?? 'Project',
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                        }
+                      },
+                    ),
+                  ),
+              ],
             ),
             body: Container(
               decoration: const BoxDecoration(
