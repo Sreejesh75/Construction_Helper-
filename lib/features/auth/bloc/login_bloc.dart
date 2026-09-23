@@ -8,6 +8,11 @@ import 'login_state.dart';
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final AuthApiService _authApiService;
 
+  // Security: RFC 5322 compliant regex pattern for strict email validation
+  static final RegExp _emailRegex = RegExp(
+    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+  );
+
   LoginBloc(this._authApiService) : super(const LoginState()) {
     debugPrint("LoginBloc: Initialized");
     on<LoginEmailChanged>(_onEmailChanged);
@@ -16,40 +21,49 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   }
 
   void _onEmailChanged(LoginEmailChanged event, Emitter<LoginState> emit) {
-    emit(state.copyWith(email: event.email, errorMessage: null));
+    emit(state.copyWith(email: event.email.trim(), errorMessage: null));
   }
 
   Future<void> _onLoginSubmitted(
     LoginSubmitted event,
     Emitter<LoginState> emit,
   ) async {
-    // ✅ Basic validation
-    if (!state.email.contains("@")) {
-      emit(state.copyWith(errorMessage: "Please enter a valid email"));
+    final sanitizedEmail = state.email.trim();
+
+    // Security: Input validation & sanitization
+    if (sanitizedEmail.isEmpty) {
+      emit(state.copyWith(errorMessage: "Email address cannot be empty."));
+      return;
+    }
+
+    if (!_emailRegex.hasMatch(sanitizedEmail)) {
+      emit(
+        state.copyWith(
+          errorMessage: "Please enter a valid email address (e.g. name@example.com).",
+        ),
+      );
       return;
     }
 
     emit(state.copyWith(isLoading: true, errorMessage: null));
 
     try {
-      // ✅ REAL API CALL
-      print("LoginBloc: dispatching login request for ${state.email}");
       final result = await _authApiService.loginWithEmail(
-        name: state.email.split('@').first,
-        email: state.email,
+        name: sanitizedEmail.split('@').first,
+        email: sanitizedEmail,
       );
 
       final userId = result['userId'];
       final userName = result['name'];
       final isNewUser = result['isNewUser'] as bool;
 
-      // ✅ Persist login
+      // Securely persist credentials
       await LocalStorage.saveUserId(userId);
 
       emit(
         state.copyWith(
           isLoading: false,
-          userId: userId, // ✅ success signal
+          userId: userId,
           userName: userName,
           isNewUser: isNewUser,
         ),
@@ -58,7 +72,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       emit(
         state.copyWith(
           isLoading: false,
-          errorMessage: e.toString().replaceFirst('Exception: ', ''),
+          errorMessage: _sanitizeErrorMessage(e),
         ),
       );
     }
@@ -78,7 +92,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       final isNewUser = result['isNewUser'] as bool;
       final email = result['email'];
 
-      // ✅ Persist login
+      // Securely persist credentials
       await LocalStorage.saveUserId(userId);
 
       emit(
@@ -94,9 +108,20 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       emit(
         state.copyWith(
           isLoading: false,
-          errorMessage: e.toString().replaceFirst('Exception: ', ''),
+          errorMessage: _sanitizeErrorMessage(e),
         ),
       );
     }
   }
+
+  /// Helper to convert internal exceptions into clean, user-facing error messages
+  String _sanitizeErrorMessage(dynamic error) {
+    final rawMessage = error.toString().replaceFirst('Exception: ', '');
+    if (rawMessage.contains('SocketException') ||
+        rawMessage.contains('connection timeout')) {
+      return "Network error. Please check your internet connection.";
+    }
+    return rawMessage;
+  }
 }
+
