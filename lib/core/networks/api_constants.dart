@@ -7,6 +7,8 @@ class ApiConstants {
   static const String createUser = "/api/create-user";
   static const String updateName = "/api/update-name";
   static const String logout = "/api/logout";
+  static const String sendOtp = "/api/send-otp";
+  static const String verifyOtp = "/api/verify-otp";
 
   // Project APIs
   static const String createProject = "/api/create-project";

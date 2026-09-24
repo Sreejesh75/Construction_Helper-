@@ -12,40 +12,61 @@ class LocalStorage {
 
   /// Securely save User ID
   static Future<void> saveUserId(String userId) async {
-    await _secureStorage.write(key: _userIdKey, value: userId);
+    try {
+      await _secureStorage.write(key: _userIdKey, value: userId);
+    } catch (_) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_userIdKey, userId);
+    }
   }
 
   /// Securely retrieve User ID (with fallback & migration from legacy SharedPreferences)
   static Future<String?> getUserId() async {
-    String? userId = await _secureStorage.read(key: _userIdKey);
-    if (userId == null) {
-      // Check legacy SharedPreferences for migration
-      final prefs = await SharedPreferences.getInstance();
-      userId = prefs.getString(_userIdKey);
-      if (userId != null) {
-        // Migrate to secure storage & delete legacy plain-text key
-        await saveUserId(userId);
-        await prefs.remove(_userIdKey);
+    try {
+      String? userId = await _secureStorage.read(key: _userIdKey);
+      if (userId == null) {
+        final prefs = await SharedPreferences.getInstance();
+        userId = prefs.getString(_userIdKey);
+        if (userId != null) {
+          await saveUserId(userId);
+          await prefs.remove(_userIdKey);
+        }
       }
+      return userId;
+    } catch (_) {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_userIdKey);
     }
-    return userId;
   }
 
   /// Securely save Auth Token
   static Future<void> saveToken(String token) async {
-    await _secureStorage.write(key: _authTokenKey, value: token);
+    try {
+      await _secureStorage.write(key: _authTokenKey, value: token);
+    } catch (_) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_authTokenKey, token);
+    }
   }
 
   /// Securely retrieve Auth Token
   static Future<String?> getToken() async {
-    return await _secureStorage.read(key: _authTokenKey);
+    try {
+      return await _secureStorage.read(key: _authTokenKey);
+    } catch (_) {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_authTokenKey);
+    }
   }
 
   /// Securely clear all credentials on logout
   static Future<void> clear() async {
-    await _secureStorage.deleteAll();
+    try {
+      await _secureStorage.deleteAll();
+    } catch (_) {}
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
   }
 }
+
 

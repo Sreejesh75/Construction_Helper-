@@ -1,14 +1,16 @@
 import 'package:construction_app/core/theme/app_color.dart';
+import 'package:construction_app/features/about/presentation/about_screen.dart';
 import 'package:construction_app/features/auth/bloc/login_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:construction_app/features/auth/bloc/login_event.dart';
 import 'package:construction_app/features/auth/bloc/login_state.dart';
 import 'package:construction_app/features/auth/data/auth_api_service.dart';
+import 'package:construction_app/features/auth/presentation/widgets/auth_method_toggle.dart';
+import 'package:construction_app/features/auth/presentation/widgets/email_login_form.dart';
+import 'package:construction_app/features/auth/presentation/widgets/mobile_otp_form.dart';
 import 'package:construction_app/features/home/presentation/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
-import 'package:construction_app/features/about/presentation/about_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -51,6 +53,15 @@ class _LoginView extends StatelessWidget {
             ),
           );
         }
+
+        if (state.successMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.successMessage!),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
       },
       builder: (context, state) {
         final size = MediaQuery.of(context).size;
@@ -59,7 +70,7 @@ class _LoginView extends StatelessWidget {
           backgroundColor: AppColors.gradientTop,
           body: Stack(
             children: [
-              // White Bubble Decoration
+              // Background Circle Decoration
               Positioned(
                 top: -100,
                 right: -50,
@@ -73,15 +84,15 @@ class _LoginView extends StatelessWidget {
                 ),
               ),
 
-              // Top Background & Animation
+              // Top Lottie Animation
               Column(
                 children: [
                   SizedBox(
-                    height: size.height * 0.45,
+                    height: size.height * 0.38,
                     width: double.infinity,
                     child: Center(
                       child: Padding(
-                        padding: const EdgeInsets.only(top: 30),
+                        padding: const EdgeInsets.only(top: 24),
                         child: Lottie.asset(
                           'assets/images/login_animation.json',
                           fit: BoxFit.contain,
@@ -92,19 +103,15 @@ class _LoginView extends StatelessWidget {
                 ],
               ),
 
-              // Bottom Sheet content
+              // Bottom Sheet Card
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  height: size.height * 0.6,
-                  margin: const EdgeInsets.all(
-                    16,
-                  ), // Add margin for floating effect
+                  height: size.height * 0.65,
+                  margin: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(
-                      30,
-                    ), // Rounded corners on all sides
+                    borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.1),
@@ -116,7 +123,7 @@ class _LoginView extends StatelessWidget {
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
+                      padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -129,165 +136,40 @@ class _LoginView extends StatelessWidget {
                               color: AppColors.primary.withOpacity(0.8),
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           const Text(
                             "Hello!",
                             style: TextStyle(
-                              fontSize: 36,
+                              fontSize: 32,
                               fontWeight: FontWeight.bold,
                               color: AppColors.heading,
                               height: 1.0,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           const Text(
                             "Manage workers, materials, and purchases \n—all in one place.",
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 14,
                               color: AppColors.subtitle,
-                              height: 1.5,
+                              height: 1.4,
                             ),
-                          ),
-                          const SizedBox(height: 40),
-
-                          // Email Input
-                          TextFormField(
-                            onChanged: (value) => context.read<LoginBloc>().add(
-                              LoginEmailChanged(value),
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'your-email@gmail.com',
-                              hintStyle: TextStyle(color: Colors.grey[400]),
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 20,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[300]!,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey[300]!,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: AppColors.primary,
-                                  width: 2,
-                                ),
-                              ),
-                              // Optional: Add prefix icon if desired, though screenshot doesn't show one clearly but has a cursor
-                              // prefixIcon: Icon(Icons.email_outlined, color: Colors.grey),
-                            ),
-                            keyboardType: TextInputType.emailAddress,
                           ),
                           const SizedBox(height: 24),
 
-                          // Sign In Button
-                          SizedBox(
-                            width: double.infinity,
-                            height: 54,
-                            child: ElevatedButton(
-                              onPressed: state.isLoading
-                                  ? null
-                                  : () {
-                                      context.read<LoginBloc>().add(
-                                        LoginSubmitted(),
-                                      );
-                                    },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                disabledBackgroundColor: AppColors.primary
-                                    .withOpacity(0.6),
-                              ),
-                              child: state.isLoading
-                                  ? const SizedBox(
-                                      height: 24,
-                                      width: 24,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 2.5,
-                                      ),
-                                    )
-                                  : const Text(
-                                      "Sign in",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                            ),
-                          ),
+                          // Auth Method Toggle (Email vs Mobile OTP)
+                          AuthMethodToggle(currentMethod: state.authMethod),
+                          const SizedBox(height: 24),
 
-                          const SizedBox(height: 16),
-
-                          // Google Sign In Button
-                          SizedBox(
-                            width: double.infinity,
-                            height: 54,
-                            child: ElevatedButton(
-                              onPressed: state.isLoading
-                                  ? null
-                                  : () {
-                                      context.read<LoginBloc>().add(
-                                        GoogleLoginRequested(),
-                                      );
-                                    },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: Colors.black87,
-                                elevation: 2,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  side: BorderSide(color: Colors.grey[200]!),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // We can use an asset or a network image for the Google logo
-                                  // Assuming we might not have a local asset, we'll try to use a local one if available,
-                                  // or just text if not. But user asked for matching UI.
-                                  // I will assume a standard Google G icon is available or I should use an Icon.
-                                  // Since I don't see a google icon asset in the file list, I'll use text or FontAwesome if available.
-                                  // checking pubspec, font_awesome_flutter is there.
-                                  // However, pure Google logo is usually preferred.
-                                  // I'll try to use an Image.asset if I had one, but I'll use a generic icon or text for now
-                                  // and ask user to provide the asset if needed, or use FontAwesome.
-                                  // pubspec has 'font_awesome_flutter: ^10.12.0'.
-                                  // Let's use FontAwesomeIcons.google.
-                                  FaIcon(
-                                    FontAwesomeIcons.google,
-                                    size: 24,
-                                    color: Colors.red,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  const Text(
-                                    "Sign in with Google",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                          // Dynamic Form based on selected AuthMethod
+                          if (state.authMethod == AuthMethod.email)
+                            EmailLoginForm(state: state)
+                          else
+                            MobileOtpForm(state: state),
 
                           const SizedBox(height: 24),
 
-                          // Footer
+                          // Footer Info Link
                           Center(
                             child: TextButton(
                               onPressed: () {

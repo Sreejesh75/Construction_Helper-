@@ -89,7 +89,7 @@ class AuthApiService {
 
       // Obtain the auth details from the request
       final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+          googleUser.authentication;
 
       // Create a new credential
       // Note: accessToken is no longer available in GoogleSignInAuthentication in v7+.
@@ -145,6 +145,95 @@ class AuthApiService {
     } on DioException catch (e) {
       throw Exception(e.response?.data["message"] ?? "Update failed");
     }
+  }
+
+  /// Send OTP to mobile phone number
+  Future<Map<String, dynamic>> sendOtp({
+    required String phone,
+    String? name,
+  }) async {
+    debugPrint(
+      "AuthApiService: Sending OTP for $phone to ${ApiConstants.baseUrl}${ApiConstants.sendOtp}",
+    );
+    try {
+      final response = await _dio.post(
+        ApiConstants.sendOtp,
+        data: {
+          "phone": phone,
+          if (name != null && name.trim().isNotEmpty) "name": name,
+        },
+      );
+      debugPrint("AuthApiService: Send OTP Response: ${response.statusCode}");
+
+      if (response.data["status"] == true) {
+        return {
+          "status": true,
+          "message": response.data["message"],
+          "phone": response.data["phone"],
+          "otp": response.data["otp"]?.toString(),
+          "otpExpiresAt": response.data["otpExpiresAt"],
+        };
+      } else {
+        throw Exception(response.data["message"] ?? "Failed to send OTP");
+      }
+    } on DioException catch (e) {
+      throw Exception(_handleDioError(e));
+    } catch (e) {
+      debugPrint("AuthApiService: Send OTP Error: $e");
+      rethrow;
+    }
+  }
+
+  /// Verify OTP for mobile phone number
+  Future<Map<String, dynamic>> verifyOtp({
+    required String phone,
+    required String otp,
+  }) async {
+    debugPrint(
+      "AuthApiService: Verifying OTP for $phone at ${ApiConstants.baseUrl}${ApiConstants.verifyOtp}",
+    );
+    try {
+      final response = await _dio.post(
+        ApiConstants.verifyOtp,
+        data: {"phone": phone, "otp": otp},
+      );
+      debugPrint("AuthApiService: Verify OTP Response: ${response.statusCode}");
+
+      if (response.data["status"] == true) {
+        final userData = response.data["user"] ?? {};
+        return {
+          "status": true,
+          "message": response.data["message"],
+          "userId": response.data["userId"] ?? userData["_id"],
+          "name": userData["name"] ?? "User",
+          "phone": userData["phone"] ?? phone,
+          "email": userData["email"] ?? "",
+        };
+      } else {
+        throw Exception(response.data["message"] ?? "Invalid OTP");
+      }
+    } on DioException catch (e) {
+      throw Exception(_handleDioError(e));
+    } catch (e) {
+      debugPrint("AuthApiService: Verify OTP Error: $e");
+      rethrow;
+    }
+  }
+
+  /// Helper for Dio exceptions
+  String _handleDioError(DioException e) {
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout) {
+      return "Connection timed out. Is the server running?";
+    } else if (e.type == DioExceptionType.connectionError) {
+      return "Unable to connect to server. Check your connection.";
+    } else if (e.response != null && e.response?.data != null) {
+      if (e.response?.data is Map && e.response?.data["message"] != null) {
+        return e.response?.data["message"];
+      }
+      return "Server error: ${e.response?.statusCode}";
+    }
+    return e.message ?? "Network error occurred";
   }
 
   /// Logout user
