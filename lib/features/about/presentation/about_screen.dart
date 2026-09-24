@@ -78,7 +78,7 @@ class AboutScreen extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    "Construction Tracker is a comprehensive solution designed to streamline construction site management. Manage workers, track materials, organize project documents, and monitor progress — all in one place.",
+                    "The Construction Tracker is a comprehensive solution designed to streamline construction site management. Manage workers, track materials, organize project documents, and monitor progress — all in one place.",
                     style: GoogleFonts.poppins(
                       fontSize: 15,
                       color: Colors.white.withOpacity(0.9),
