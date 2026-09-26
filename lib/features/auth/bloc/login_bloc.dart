@@ -5,6 +5,8 @@ import '../../../core/utils/local_storage.dart';
 import 'login_event.dart';
 import 'login_state.dart';
 
+import '../../../core/services/notification_service.dart';
+
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final AuthApiService _authApiService;
 
@@ -80,10 +82,20 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         name: event.name,
       );
 
+      final otpCode = result['otp'];
+
+      // Show local push notification banner on device
+      if (otpCode != null) {
+        NotificationService.instance.showOtpNotification(
+          otp: otpCode,
+          phone: cleanPhone,
+        );
+      }
+
       emit(state.copyWith(
         isLoading: false,
         isOtpSent: true,
-        devOtp: result['otp'],
+        devOtp: otpCode,
         successMessage: result['message'] ?? "OTP sent successfully",
       ));
     } catch (e) {

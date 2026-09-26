@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:construction_app/core/theme/app_color.dart';
 import 'package:construction_app/features/auth/bloc/login_bloc.dart';
 import 'package:construction_app/features/auth/bloc/login_event.dart';
@@ -20,9 +21,52 @@ class MobileOtpForm extends StatefulWidget {
 
 class _MobileOtpFormState extends State<MobileOtpForm> {
   final TextEditingController _otpController = TextEditingController();
+  Timer? _timer;
+  int _secondsRemaining = 120; // 2 minutes countdown
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.state.isOtpSent) {
+      _startCountdown();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant MobileOtpForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Restart timer when OTP is freshly sent
+    if (widget.state.isOtpSent && (!oldWidget.state.isOtpSent || oldWidget.state.phone != widget.state.phone)) {
+      _startCountdown();
+    }
+  }
+
+  void _startCountdown() {
+    _timer?.cancel();
+    setState(() {
+      _secondsRemaining = 120;
+    });
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      if (_secondsRemaining > 0) {
+        setState(() {
+          _secondsRemaining--;
+        });
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  String get _formattedTime {
+    final minutes = (_secondsRemaining ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_secondsRemaining % 60).toString().padLeft(2, '0');
+    return "$minutes:$seconds";
+  }
 
   @override
   void dispose() {
+    _timer?.cancel();
     _otpController.dispose();
     super.dispose();
   }
@@ -95,6 +139,7 @@ class _MobileOtpFormState extends State<MobileOtpForm> {
             onPressed: widget.state.isLoading
                 ? null
                 : () {
+                    _startCountdown();
                     context.read<LoginBloc>().add(const SendOtpRequested());
                   },
             style: ElevatedButton.styleFrom(
@@ -162,6 +207,7 @@ class _MobileOtpFormState extends State<MobileOtpForm> {
                 visualDensity: VisualDensity.compact,
                 icon: const Icon(Icons.edit, size: 18, color: AppColors.primary),
                 onPressed: () {
+                  _timer?.cancel();
                   _otpController.clear();
                   context.read<LoginBloc>().add(ResetOtpStateRequested());
                 },
@@ -170,42 +216,51 @@ class _MobileOtpFormState extends State<MobileOtpForm> {
           ),
         ),
 
-        // Dev Mode helper chip if backend returned OTP
-        if (widget.state.devOtp != null) ...[
-          const SizedBox(height: 10),
-          InkWell(
-            onTap: () {
-              _otpController.text = widget.state.devOtp!;
-              context.read<LoginBloc>().add(LoginOtpChanged(widget.state.devOtp!));
-            },
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        const SizedBox(height: 20),
+
+        // OTP Label & Countdown Row
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Enter 4-digit code",
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.subtitle,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.amber.shade50,
+                color: _secondsRemaining > 0
+                    ? AppColors.primary.withOpacity(0.1)
+                    : Colors.grey[100],
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.amber.shade400),
               ),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.key, size: 16, color: Colors.amber),
-                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.timer_outlined,
+                    size: 15,
+                    color: _secondsRemaining > 0 ? AppColors.primary : Colors.grey[600],
+                  ),
+                  const SizedBox(width: 4),
                   Text(
-                    "Demo OTP: ${widget.state.devOtp} (Tap to autofill)",
+                    _formattedTime,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: Colors.amber.shade900,
+                      color: _secondsRemaining > 0 ? AppColors.primary : Colors.grey[600],
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
 
         // OTP Input
         TextFormField(
@@ -225,7 +280,6 @@ class _MobileOtpFormState extends State<MobileOtpForm> {
           ),
           decoration: InputDecoration(
             hintText: '••••',
-            labelText: '4-Digit OTP',
             hintStyle: TextStyle(
               color: Colors.grey[400],
               letterSpacing: 12,
@@ -291,24 +345,40 @@ class _MobileOtpFormState extends State<MobileOtpForm> {
           ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
 
-        // Resend OTP Button
+        // Resend OTP Section with Timer
         Center(
-          child: TextButton(
-            onPressed: widget.state.isLoading
-                ? null
-                : () {
-                    context.read<LoginBloc>().add(const SendOtpRequested());
-                  },
-            child: Text(
-              "Didn't receive OTP? Resend",
-              style: TextStyle(
-                color: AppColors.primary.withOpacity(0.9),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+          child: _secondsRemaining > 0
+              ? Text(
+                  "Resend code in $_formattedTime",
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                )
+              : TextButton.icon(
+                  onPressed: widget.state.isLoading
+                      ? null
+                      : () {
+                          _startCountdown();
+                          context.read<LoginBloc>().add(const SendOtpRequested());
+                        },
+                  icon: const Icon(
+                    Icons.refresh_rounded,
+                    size: 18,
+                    color: AppColors.primary,
+                  ),
+                  label: const Text(
+                    "Resend OTP Code",
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
         ),
       ],
     );
