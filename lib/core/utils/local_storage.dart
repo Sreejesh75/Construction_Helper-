@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorage {
   static const _userIdKey = 'user_id';
+  static const _userNameKey = 'user_name';
+  static const _userEmailKey = 'user_email';
   static const _authTokenKey = 'auth_token';
 
   static const _secureStorage = FlutterSecureStorage(
@@ -36,6 +38,56 @@ class LocalStorage {
     } catch (_) {
       final prefs = await SharedPreferences.getInstance();
       return prefs.getString(_userIdKey);
+    }
+  }
+
+  /// Save User Name
+  static Future<void> saveUserName(String name) async {
+    try {
+      await _secureStorage.write(key: _userNameKey, value: name);
+    } catch (_) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_userNameKey, name);
+    }
+  }
+
+  /// Retrieve User Name
+  static Future<String?> getUserName() async {
+    try {
+      String? name = await _secureStorage.read(key: _userNameKey);
+      if (name == null) {
+        final prefs = await SharedPreferences.getInstance();
+        name = prefs.getString(_userNameKey);
+      }
+      return name;
+    } catch (_) {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_userNameKey);
+    }
+  }
+
+  /// Save User Email
+  static Future<void> saveUserEmail(String email) async {
+    try {
+      await _secureStorage.write(key: _userEmailKey, value: email);
+    } catch (_) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_userEmailKey, email);
+    }
+  }
+
+  /// Retrieve User Email
+  static Future<String?> getUserEmail() async {
+    try {
+      String? email = await _secureStorage.read(key: _userEmailKey);
+      if (email == null) {
+        final prefs = await SharedPreferences.getInstance();
+        email = prefs.getString(_userEmailKey);
+      }
+      return email;
+    } catch (_) {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_userEmailKey);
     }
   }
 
