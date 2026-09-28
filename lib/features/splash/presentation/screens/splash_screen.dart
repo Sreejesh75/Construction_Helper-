@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'package:construction_app/core/theme/app_color.dart';
+import 'package:construction_app/core/utils/local_storage.dart';
 import 'package:construction_app/features/auth/presentation/login_screen.dart';
+import 'package:construction_app/features/home/presentation/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:construction_app/core/theme/app_color.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,12 +20,35 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
- 
-    Timer(const Duration(seconds: 6), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final userId = await LocalStorage.getUserId();
+    final userName = await LocalStorage.getUserName();
+    final email = await LocalStorage.getUserEmail();
+
+    Timer(const Duration(seconds: 4), () {
+      if (!mounted) return;
+
+      if (userId != null && userId.trim().isNotEmpty) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainScreen(
+              userId: userId,
+              userName: userName ?? 'User',
+              email: email ?? '',
+              isNewUser: false,
+            ),
+          ),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
     });
   }
 

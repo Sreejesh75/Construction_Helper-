@@ -1,4 +1,5 @@
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import '../../../core/utils/local_storage.dart';
 import '../../auth/data/auth_api_service.dart';
 import '../data/home_api_service.dart';
 import 'home_event.dart';
@@ -28,8 +29,10 @@ class HomeBloc extends HydratedBloc<HomeEvent, HomeState> {
   Future<void> _logout(LogoutEvent event, Emitter<HomeState> emit) async {
     try {
       await authApi.logout();
+      await LocalStorage.clear();
       emit(const HomeState(isLoggedOut: true));
     } catch (e) {
+      await LocalStorage.clear();
       emit(const HomeState(isLoggedOut: true));
     }
   }

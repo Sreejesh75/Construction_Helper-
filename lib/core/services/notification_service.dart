@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class NotificationService {
   static final NotificationService instance = NotificationService._internal();
@@ -39,6 +40,23 @@ class NotificationService {
           debugPrint("Notification clicked: ${details.payload}");
         },
       );
+
+      final androidImplementation = _notificationsPlugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+
+      if (androidImplementation != null) {
+        const AndroidNotificationChannel channel = AndroidNotificationChannel(
+          'otp_channel_v2',
+          'OTP Notifications',
+          description: 'Notifications for login OTP codes',
+          importance: Importance.max,
+          playSound: true,
+        );
+        await androidImplementation.createNotificationChannel(channel);
+      }
+
       _isInitialized = true;
       await requestPermission();
       debugPrint("NotificationService: Initialized successfully");
@@ -50,17 +68,9 @@ class NotificationService {
   /// Request runtime notification permission on Android 13+ & iOS
   Future<bool> requestPermission() async {
     try {
-      final androidImplementation = _notificationsPlugin
-          .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin
-          >();
-
-      if (androidImplementation != null) {
-        final bool? granted = await androidImplementation
-            .requestNotificationsPermission();
-        debugPrint("Android Notification Permission Granted: $granted");
-        return granted ?? false;
-      }
+      final status = await Permission.notification.request();
+      debugPrint("Android Notification Permission Status: $status");
+      return status.isGranted;
     } catch (e) {
       debugPrint("Error requesting notification permission: $e");
     }
@@ -77,12 +87,14 @@ class NotificationService {
 
       const AndroidNotificationDetails androidDetails =
           AndroidNotificationDetails(
-            'otp_channel',
+            'otp_channel_v2',
             'OTP Notifications',
             channelDescription: 'Notifications for login OTP codes',
             importance: Importance.max,
             priority: Priority.high,
             showWhen: true,
+            playSound: true,
+            enableVibration: true,
           );
 
       const NotificationDetails notificationDetails = NotificationDetails(

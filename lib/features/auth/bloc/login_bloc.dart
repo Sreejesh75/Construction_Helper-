@@ -137,8 +137,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       final userId = result['userId'];
       final userName = result['name'];
+      final email = result['email'];
 
       await LocalStorage.saveUserId(userId);
+      if (userName != null) await LocalStorage.saveUserName(userName);
+      if (email != null) await LocalStorage.saveUserEmail(email);
 
       emit(state.copyWith(
         isLoading: false,
@@ -189,6 +192,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       // Securely persist credentials
       await LocalStorage.saveUserId(userId);
+      if (userName != null) await LocalStorage.saveUserName(userName);
+      await LocalStorage.saveUserEmail(sanitizedEmail);
 
       emit(
         state.copyWith(
@@ -224,6 +229,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       // Securely persist credentials
       await LocalStorage.saveUserId(userId);
+      if (userName != null) await LocalStorage.saveUserName(userName);
+      if (email != null) await LocalStorage.saveUserEmail(email);
 
       emit(
         state.copyWith(
