@@ -216,6 +216,59 @@ class _MobileOtpFormState extends State<MobileOtpForm> {
           ),
         ),
 
+        // If dev/test OTP is present, show direct banner & auto-fill option
+        if (widget.state.devOtp != null && widget.state.devOtp!.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.amber.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.amber.shade400, width: 1),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.vpn_key_rounded,
+                  color: Colors.amber.shade800,
+                  size: 20,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    "OTP Code: ${widget.state.devOtp}",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: Colors.amber.shade900,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    backgroundColor: Colors.amber.shade800,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () {
+                    _otpController.text = widget.state.devOtp!;
+                    context.read<LoginBloc>().add(
+                          LoginOtpChanged(widget.state.devOtp!),
+                        );
+                  },
+                  child: const Text(
+                    "Auto-fill",
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+
         const SizedBox(height: 20),
 
         // OTP Label & Countdown Row

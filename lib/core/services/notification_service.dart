@@ -68,6 +68,14 @@ class NotificationService {
   /// Request runtime notification permission on Android 13+ & iOS
   Future<bool> requestPermission() async {
     try {
+      final androidImplementation = _notificationsPlugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+      if (androidImplementation != null) {
+        final granted = await androidImplementation.requestNotificationsPermission();
+        debugPrint("Android native notification permission request result: $granted");
+      }
       final status = await Permission.notification.request();
       debugPrint("Android Notification Permission Status: $status");
       return status.isGranted;
