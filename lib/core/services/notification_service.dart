@@ -58,7 +58,6 @@ class NotificationService {
       }
 
       _isInitialized = true;
-      await requestPermission();
       debugPrint("NotificationService: Initialized successfully");
     } catch (e) {
       debugPrint("NotificationService Initialization Error: $e");
@@ -92,6 +91,8 @@ class NotificationService {
   }) async {
     try {
       await init();
+      // Ensure permission dialog is requested when UI is visible on screen
+      await requestPermission();
 
       const AndroidNotificationDetails androidDetails =
           AndroidNotificationDetails(
